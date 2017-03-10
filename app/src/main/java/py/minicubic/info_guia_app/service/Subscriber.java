@@ -102,6 +102,8 @@ public class Subscriber extends Service implements MqttCallback {
 
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
+            options.setUserName("minicubic");
+            options.setPassword(".minicubic.2016.80*".toCharArray());
             options.setKeepAliveInterval(300);
             ///options.setUserName(getApplication().getString(R.string.user));
             ///options.setPassword(getApplication().getString(R.string.pass).toCharArray());
