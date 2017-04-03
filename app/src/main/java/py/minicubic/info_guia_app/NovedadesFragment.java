@@ -2,7 +2,6 @@ package py.minicubic.info_guia_app;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -21,25 +20,22 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import py.minicubic.info_guia_app.adapters.CustomAdapter;
+import py.minicubic.info_guia_app.adapters.NovedadesAdapter;
 import py.minicubic.info_guia_app.dto.NovedadesDTO;
+import py.minicubic.info_guia_app.dto.PublicacionClienteDTO;
 import py.minicubic.info_guia_app.dto.Request;
 import py.minicubic.info_guia_app.dto.Response;
-import py.minicubic.info_guia_app.event.ClienteServiceEvent;
+import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
-import py.minicubic.info_guia_app.model.Novedades;
 
 
 public class NovedadesFragment extends Fragment {
 
     private ListView listView;
-    private List<NovedadesDTO> novedadesList;
-    private CustomAdapter adapter;
-    private UUID uuid;
+    private List<PublicacionClienteDTO> novedadesList;
+    private NovedadesAdapter adapter;
     private Gson gson = new GsonBuilder().create();
     private ProgressDialog progressDialog;
     private Handler h;
@@ -58,29 +54,30 @@ public class NovedadesFragment extends Fragment {
     }
 
     private void cargarNovedades(){
-        Request<NovedadesDTO> request = new Request<>();
-        NovedadesDTO novedadesDTO = new NovedadesDTO();
-        request.setData(novedadesDTO);
-        request.setType("/api/ClienteService/getNovedades/"+ UUID.randomUUID().toString());
+        Request<PublicacionClienteDTO> request = new Request<>();
+        PublicacionClienteDTO publicacionClienteDTO = new PublicacionClienteDTO();
+        publicacionClienteDTO.setTipo_publicaciones_id(2L);
+        request.setData(publicacionClienteDTO);
+        request.setType(getString(R.string.request_novedades)+ UUID.randomUUID().toString());
         EventBus.getDefault().post(new EventPublish(request));
     }
 
-
     @Override
-    public void onDestroy() {
+    public void onStop() {
         EventBus.getDefault().unregister(this);
-        super.onDestroy();
+        super.onStop();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onClienteServiceEvent(ClienteServiceEvent event){
-        Type listType = new TypeToken<Response<List<NovedadesDTO>>>(){}.getType();
-        Response<List<NovedadesDTO>> response = gson.fromJson(event.getMessage(), listType);
+    public void onClienteServiceEvent(ClienteServiceNovedadesEvent event){
+        Type listType = new TypeToken<Response<List<PublicacionClienteDTO>>>(){}.getType();
+        Response<List<PublicacionClienteDTO>> response = gson.fromJson(event.getMessage(), listType);
         if (response.getCodigo() == 200){
+
             checkResponse = true;
             progressDialog.dismiss();
             novedadesList = response.getData();
-            adapter = new CustomAdapter(getActivity(), novedadesList);
+            adapter = new NovedadesAdapter(getActivity(), novedadesList);
             listView.setAdapter(adapter);
             //Insertamos los registros traidos en la base de datos local...
             //new InsertarGestionHojaRutas().execute();
@@ -89,7 +86,6 @@ public class NovedadesFragment extends Fragment {
             Toast.makeText(getActivity(), "Error al traer hojas de rutas", Toast.LENGTH_SHORT).show();
             return;
         }
-
     }
 
     @Override

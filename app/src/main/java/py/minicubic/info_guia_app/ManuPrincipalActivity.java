@@ -24,7 +24,7 @@ public class ManuPrincipalActivity extends FragmentActivity {
         tabHost = (FragmentTabHost) findViewById(R.id.tabhost);
         tabHost.setup(this, getSupportFragmentManager(),android.R.id.tabcontent);
 
-        tabHost.addTab(tabHost.newTabSpec("novedades").setIndicator("Novedades"), NovedadesFragment.class, null);
+        tabHost.addTab(tabHost.newTabSpec("novedades").setIndicator("Novedades"), NovedadesFragment.class,null);
         tabHost.addTab(tabHost.newTabSpec("lista").setIndicator("Lista"), ListaFragment.class, null);
 
         //qué queremos que aparezca en las pestañas//definimos el id de cada Tab (pestaña)

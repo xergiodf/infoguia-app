@@ -1,14 +1,17 @@
 package py.minicubic.info_guia_app;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,24 +21,27 @@ import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
+import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 
 import py.minicubic.info_guia_app.adapters.TransformerAdapter;
+import py.minicubic.info_guia_app.event.BuscarClienteEvent;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PortadaFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PortadaFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PortadaFragment extends Fragment implements BaseSliderView.OnSliderClickListener, ViewPagerEx.OnPageChangeListener{
 
     private SliderLayout mDemoSlider;
     private SliderLayout mDemoSlider2;
+    private ProgressDialog progressDialog;
+    private Handler h;
+    private boolean checkResponse;
+    private ImageView imageViewOfertaItau, imageViewOfertaPromoItau, imageViewOfertaDominos, imageViewFavoritoGajas, imageViewFavoritoAuricular, imageViewRecomendadoNotebook,
+                    imageViewOfertaBurguer, imageViewOfertaBolson, imageViewOfertaZapato, imageViewFavoritoMochila, imageViewRecomendadoTenis, imageViewRecomendadoHeineken;
 
     public PortadaFragment() {
         // Required empty public constructor
@@ -66,6 +72,12 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -80,17 +92,13 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
         url_maps.put("Game of Thrones", "http://images.boomsbeat.com/data/images/full/19640/game-of-thrones-season-4-jpg.jpg");
 
         HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
-        file_maps.put("Hannibal",R.drawable.hannibal);
-        file_maps.put("Big Bang Theory",R.drawable.bigbang);
-        file_maps.put("House of Cards",R.drawable.house);
-        file_maps.put("Game of Thrones", R.drawable.game_of_thrones);
 
-        for(String name : file_maps.keySet()){
+        for(String name : url_maps.keySet()){
             TextSliderView textSliderView = new TextSliderView(getActivity());
             // initialize a SliderLayout
             textSliderView
                     .description(name)
-                    .image(file_maps.get(name))
+                    .image(url_maps.get(name))
                     .setScaleType(BaseSliderView.ScaleType.Fit)
                     .setOnSliderClickListener(this);
 
@@ -108,11 +116,11 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
         mDemoSlider.addOnPageChangeListener(this);
 
 
-        HashMap<String,Integer> file_maps2 = new HashMap<String, Integer>();
-        file_maps2.put("Itau",R.drawable.promo_itau);
-        file_maps2.put("Dominos Pizza",R.drawable.dominos_pizza);
-        file_maps2.put("Casa rica",R.drawable.casarica);
-        file_maps2.put("Cerveza Pilsen", R.drawable.pilsen);
+        HashMap<String,String> file_maps2 = new HashMap<String, String>();
+        file_maps2.put("Itau","http://45.79.159.123/promo_itau.jpg");
+        file_maps2.put("Dominos Pizza","http://45.79.159.123/domino.jpeg");
+        file_maps2.put("Casa rica","http://45.79.159.123/casarica.jpeg");
+        file_maps2.put("Cerveza Pilsen", "http://45.79.159.123/pilsen.jpeg");
 
         for(String name : file_maps2.keySet()){
             TextSliderView textSliderView = new TextSliderView(getActivity());
@@ -135,6 +143,68 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
         mDemoSlider2.setCustomAnimation(new DescriptionAnimation());
         mDemoSlider2.setDuration(4000);
         mDemoSlider2.addOnPageChangeListener(this);
+
+        imageViewOfertaItau = (ImageView) view.findViewById(R.id.imageViewOfertaItau);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/itau.jpg")
+                .into(imageViewOfertaItau);
+
+        imageViewOfertaPromoItau = (ImageView) view.findViewById(R.id.imageViewOfertasPromoItau);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/promo_itau.jpg")
+                .into(imageViewOfertaPromoItau);
+
+        imageViewOfertaDominos = (ImageView) view.findViewById(R.id.imageViewOfertasDominos);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/domino.jpeg")
+                .into(imageViewOfertaDominos);
+
+        imageViewOfertaBurguer = (ImageView) view.findViewById(R.id.imageViewOfertasBurguer);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/domino.jpeg")
+                .into(imageViewOfertaBurguer);
+
+
+        imageViewOfertaBolson = (ImageView) view.findViewById(R.id.imageViewOfertasBolson);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/bolson.jpg")
+                .into(imageViewOfertaBolson);
+
+        imageViewOfertaZapato = (ImageView) view.findViewById(R.id.imageViewOfertasZapato);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/zapato.jpg")
+                .into(imageViewOfertaZapato);
+
+
+        imageViewFavoritoGajas = (ImageView) view.findViewById(R.id.imageViewFavoritosGajas);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/gajas.jpeg")
+                .into(imageViewFavoritoGajas);
+
+        imageViewFavoritoMochila = (ImageView) view.findViewById(R.id.imageViewFavoritosMochila);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/mochila.jpg")
+                .into(imageViewFavoritoMochila);
+
+        imageViewFavoritoAuricular = (ImageView) view.findViewById(R.id.imageViewFavoritosAuricular);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/auricular.jpg")
+                .into(imageViewFavoritoAuricular);
+
+        imageViewRecomendadoTenis = (ImageView) view.findViewById(R.id.imageViewRecomendadosTenis);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/tenis.jpg")
+                .into(imageViewRecomendadoTenis);
+
+        imageViewRecomendadoNotebook = (ImageView) view.findViewById(R.id.imageViewRecomendadosNotebook);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/notebook.jpeg")
+                .into(imageViewRecomendadoNotebook);
+
+        imageViewRecomendadoHeineken = (ImageView) view.findViewById(R.id.imageViewRecomendadosHeineken);
+        Picasso.with(getActivity())
+                .load("http://45.79.159.123/heineken.jpg")
+                .into(imageViewRecomendadoHeineken);
         return view;
     }
 
@@ -142,8 +212,25 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
     public void onStop() {
         // To prevent a memory leak on rotation, make sure to call stopAutoCycle() on the slider before activity or fragment is destroyed
         mDemoSlider.stopAutoCycle();
+        EventBus.getDefault().unregister(this);
         super.onStop();
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBuscarClienteEvent(BuscarClienteEvent evet){
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setTitle("Infoguia");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Obteniendo clientes...");
+        progressDialog.show();
+        h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkResponse();
+            }
+        }, 6000);
+    }
+
     @Override
     public void onSliderClick(BaseSliderView slider) {
         Toast.makeText(getActivity(),slider.getBundle().get("extra") + "",Toast.LENGTH_SHORT).show();
@@ -164,6 +251,11 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
 
     }
 
-
+    private void checkResponse() {
+        if (!checkResponse){
+            progressDialog.dismiss();
+            Toast.makeText(getContext(), "No se tuvieron resultados en la busqueda", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

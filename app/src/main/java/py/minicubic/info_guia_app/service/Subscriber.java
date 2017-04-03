@@ -22,12 +22,13 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.lang.reflect.Type;
-import java.util.List;
-
+import py.minicubic.info_guia_app.R;
 import py.minicubic.info_guia_app.dto.Request;
-import py.minicubic.info_guia_app.event.ClienteServiceEvent;
+import py.minicubic.info_guia_app.event.ClientePerfilEvent;
+import py.minicubic.info_guia_app.event.ClientePromocionesEvent;
+import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
+import py.minicubic.info_guia_app.event.ListaClientesEvent;
 import py.minicubic.info_guia_app.event.NetworkStateChangeEvent;
 
 /**
@@ -40,7 +41,6 @@ public class Subscriber extends Service implements MqttCallback {
     private Thread t;
     private MqttAsyncClient client;
     private Gson gson = new GsonBuilder().create();
-    private static final String MQTT_TOPIC = "/ClienteServiceResponse/#";
 
     @Nullable
     @Override
@@ -102,14 +102,12 @@ public class Subscriber extends Service implements MqttCallback {
 
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
-            options.setUserName("minicubic");
-            options.setPassword(".minicubic.2016.80*".toCharArray());
+            options.setUserName(getApplication().getString(R.string.user));
+            options.setPassword(getApplication().getString(R.string.password).toCharArray());
             options.setKeepAliveInterval(300);
-            ///options.setUserName(getApplication().getString(R.string.user));
-            ///options.setPassword(getApplication().getString(R.string.pass).toCharArray());
             String clientId = MqttAsyncClient.generateClientId();
 
-            client = new MqttAsyncClient("tcp://45.79.159.123:1883",clientId, dataStore);
+            client = new MqttAsyncClient(getApplication().getString(R.string.host),clientId, dataStore);
 
             Log.i("Client","Connected..."); //$NON-NLS-1$
 
@@ -137,7 +135,7 @@ public class Subscriber extends Service implements MqttCallback {
     public boolean subscribe() {
         int qos = 1;
         try {
-            client.subscribe(MQTT_TOPIC, 2);
+            client.subscribe(getApplication().getString(R.string.topic), 2);
             return true;
 
         } catch (MqttException e) {
@@ -155,7 +153,7 @@ public class Subscriber extends Service implements MqttCallback {
         try {
             EventBus.getDefault().unregister(this);
             if (client != null) {
-                client.unsubscribe(MQTT_TOPIC);
+                client.unsubscribe(getApplication().getString(R.string.topic));
                 client.disconnect();
 
                 Log.d(TAG, "Mqtt client disconnected");
@@ -178,16 +176,24 @@ public class Subscriber extends Service implements MqttCallback {
 
     @Override
     public void messageArrived(String topic, final MqttMessage message) throws Exception {
-        if (topic.contains("ClienteServiceResponse")){
+        String topicos[] = topic.split("/");
+        final String pantallaId = topicos[4];
             Log.i(TAG, "llego respuesta de ClienteService: " + message.toString());
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    EventBus.getDefault().post(new ClienteServiceEvent(message.toString()));
+                    if (pantallaId.equalsIgnoreCase("novedades")){
+                        EventBus.getDefault().post(new ClienteServiceNovedadesEvent(message.toString()));
+                    }else if (pantallaId.equalsIgnoreCase("promociones")){
+                        EventBus.getDefault().post(new ClientePromocionesEvent(message.toString()));
+                    }else if(pantallaId.equalsIgnoreCase("clienteperfil")){
+                        EventBus.getDefault().post(new ClientePerfilEvent(message.toString()));
+                    }else if(pantallaId.equalsIgnoreCase("clientemain")){
+                        EventBus.getDefault().post(new ListaClientesEvent(message.toString()));
+                    }
                 }
             });
             Log.i(TAG, message.toString());
-        }
     }
 
     @Override
@@ -214,7 +220,7 @@ public class Subscriber extends Service implements MqttCallback {
             String message = gson.toJson(request);
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setPayload(message.getBytes());
-            if (request.getType().contains("ClienteService")){
+            if (request.getType().contains("Cliente")){
                 client.publish(request.getType(), mqttMessage);
             }
 

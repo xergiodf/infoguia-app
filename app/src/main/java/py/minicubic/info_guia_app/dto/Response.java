@@ -5,15 +5,15 @@ package py.minicubic.info_guia_app.dto;
  */
 
 public class Response<T> {
-    private Integer codigo;
+    private int codigo;
     private String mensaje;
     private T data;
 
-    public Integer getCodigo() {
+    public int getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(Integer codigo) {
+    public void setCodigo(int codigo) {
         this.codigo = codigo;
     }
 

@@ -10,7 +10,7 @@ public class NovedadesDTO {
     private String titulo;
     private String descripconCorta;
     private String dirImagen;
-    private Integer idCliente;
+    private Long idCliente;
     private String nombreCompleto;
     private String tipoPublicacion;
 
@@ -46,11 +46,11 @@ public class NovedadesDTO {
         this.dirImagen = dirImagen;
     }
 
-    public Integer getIdCliente() {
+    public Long getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(Integer idCliente) {
+    public void setIdCliente(Long idCliente) {
         this.idCliente = idCliente;
     }
 
