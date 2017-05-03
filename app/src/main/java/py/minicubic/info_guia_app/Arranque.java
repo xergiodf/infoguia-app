@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.util.Log;
 
+import py.minicubic.info_guia_app.service.LocationService;
 import py.minicubic.info_guia_app.service.Subscriber;
 
 /**
@@ -18,5 +19,6 @@ public class Arranque extends Application {
         Intent intent = new Intent(this, Subscriber.class);
         startService(intent);
         Log.i("Arranque", "Servicio Subscriber iniciado...");
+
     }
 }

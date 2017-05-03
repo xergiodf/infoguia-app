@@ -19,6 +19,24 @@ public class SucursalClientesDTO implements Serializable{
     private String telefono3;
     private Double lat;
     private Double lon;
+    private String duracion;
+    private String distancia;
+
+    public String getDuracion() {
+        return duracion;
+    }
+
+    public void setDuracion(String duracion) {
+        this.duracion = duracion;
+    }
+
+    public String getDistancia() {
+        return distancia;
+    }
+
+    public void setDistancia(String distancia) {
+        this.distancia = distancia;
+    }
 
     public Long getId() {
         return id;

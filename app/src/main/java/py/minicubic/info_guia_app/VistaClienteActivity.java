@@ -24,18 +24,38 @@ public class VistaClienteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vista_cliente);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarCliente);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarCliente);
+        //setSupportActionBar(toolbar);
         tabHost = (FragmentTabHost) findViewById(R.id.tabhost);
         tabHost.setup(this, getSupportFragmentManager(),android.R.id.tabcontent);
-        lista = (ArrayList<ClienteDTO>) getIntent().getSerializableExtra("lista");
+        Long id =  getIntent().getLongExtra("idCliente",0);
+        String titulo = getIntent().getStringExtra("titulo");
+        String coordenadas =getIntent().getStringExtra("coordenadas");
+        String telefono = getIntent().getStringExtra("telefono");
+        String direccion = getIntent().getStringExtra("direccion");
         Bundle bundle = new Bundle();
-        bundle.putSerializable("lista", (Serializable) lista);
+        bundle.putSerializable("idCliente", id);
+        bundle.putString("titulo", titulo);
+        bundle.putString("coordenadas", coordenadas);
+        bundle.putString("telefono", telefono);
+        bundle.putString("direccion", direccion);
+
         ClientePerfilFragment perfilFragment = new ClientePerfilFragment();
         perfilFragment.setArguments(bundle);
+
         tabHost.addTab(tabHost.newTabSpec("perfil").setIndicator("Perfil"), perfilFragment.getClass(), bundle);
+
+        ListaSucursalesFragment sucursalesFragment = new ListaSucursalesFragment();
+        bundle = new Bundle();
+        bundle.putLong("idCliente", id);
+        sucursalesFragment.setArguments(bundle);
+
+        ClientePromocionesFragment promocionesFragment = new ClientePromocionesFragment();
+        promocionesFragment.setArguments(bundle);
+
         tabHost.addTab(tabHost.newTabSpec("informacion").setIndicator("Informacion"), ClienteInformacionFragment.class, null);
-        tabHost.addTab(tabHost.newTabSpec("promociones").setIndicator("Promociones"), ClientePromocionesFragment.class, null);
+        tabHost.addTab(tabHost.newTabSpec("promociones").setIndicator("Promociones"), promocionesFragment.getClass(), bundle);
+        tabHost.addTab(tabHost.newTabSpec("sucursales").setIndicator("Sucursales"), sucursalesFragment.getClass(), bundle);
     }
 
     @Override

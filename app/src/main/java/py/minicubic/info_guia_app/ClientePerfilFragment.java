@@ -62,20 +62,24 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
     private TextView txtDireccion;
     private ListView listViewHorariosAtencionCliente;
     private ListView listViewTelefonoClientePerfil;
-    private String coordenadas;
     private double lat;
     private double lon;
-    private String titulo;
     private String descripcion;
     private ImageView imageViewPerfil;
+    Long id;
+    String titulo;
+    String coordenadas;
+    String direccion;
+    String telefono;
     public ClientePerfilFragment() {
         // Required empty public constructor
     }
 
-    private void cargarCliente(){
+    private void cargarCliente(Long id){
         Request<ClienteDTO> request = new Request<>();
         ClienteDTO cliente = new ClienteDTO();
-        cliente.setNombre_corto("itau");
+        cliente.setId(id);
+        cliente.setNombre_corto("");
         request.setData(cliente);
         request.setType("/api/request/android/ClientePerfil/ClienteService/getClientesPorNombre/"+ UUID.randomUUID().toString());
         EventBus.getDefault().post(new EventPublish(request));
@@ -84,7 +88,27 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Bundle bundle = getArguments();
+         id  =  bundle.getLong("idCliente", 0);
+        titulo = bundle.getString("titulo");
+        coordenadas= bundle.getString("coordenadas");
+        direccion = bundle.getString("direccion");
+        telefono = bundle.getString("telefono");
+        //if (listClientes == null){
+        //    cargarCliente(id);
+        //}
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setTitle("Infoguia");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Obteniendo perfil de cliente...");
+        progressDialog.show();
+        h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressDialog.dismiss();
+            }
+        }, 3000);
     }
 
     @Override
@@ -92,35 +116,24 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_cliente_perfil, container, false);
-        Bundle bundle = getArguments();
         context = getActivity();
         imageViewPerfil = (ImageView) mView.findViewById(R.id.imageViewPerfil);
-
-        Picasso.with(getActivity())
-                .load("http://45.79.159.123/itau.jpg")
-                .into(imageViewPerfil);
-        listClientes = (ArrayList<ClienteDTO>) bundle.getSerializable("lista");
         listViewHorariosAtencionCliente = (ListView) mView.findViewById(R.id.listViewHorariosAtencionCliente);
         listViewTelefonoClientePerfil = (ListView) mView.findViewById(R.id.listViewTelefonoClientePerfil);
         txtituloPerfilCliente = (TextView) mView.findViewById(R.id.txtTituloPerfilCliente);
         txtDireccion = (TextView) mView.findViewById(R.id.txtDireccion);
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setTitle("Infoguia");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Obteniendo perfil de cliente...");
-        progressDialog.show();
-        //cargarCliente();
-        if (listClientes != null){
-            traerClientes();
-        }
-        h = new Handler();
-        h.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                checkResponse();
-            }
-        }, 6000);
+        txtituloPerfilCliente.setText(titulo);
+        List<String> listaHorarios = new ArrayList<>();
+        List<String> listaTelefonos = new ArrayList<>();
+        listaTelefonos.add(telefono);
 
+            txtDireccion.setText(direccion);
+            lat = Double.parseDouble(coordenadas.split("\\|")[0]);
+            lon = Double.parseDouble(coordenadas.split("\\|")[1]);
+
+        listViewHorariosAtencionCliente.setAdapter(new ListElementAdapter(listaHorarios, getActivity()));
+        listViewTelefonoClientePerfil.setAdapter( new ListElementAdapter(listaTelefonos, getActivity()));
+        //cargarCliente();
         return mView;
     }
 
@@ -191,6 +204,15 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
             checkResponse = true;
             progressDialog.dismiss();
             listClientes = response.getData();
+            if (listClientes.get(0).getNombre_corto().equalsIgnoreCase("itau")){
+                Picasso.with(getActivity())
+                        .load("http://45.79.159.123/itau.jpg")
+                        .into(imageViewPerfil);
+            }else if (listClientes.get(0).getNombre_corto().equalsIgnoreCase("familiar")){
+                Picasso.with(getActivity())
+                        .load("http://45.79.159.123/familiar.jpeg")
+                        .into(imageViewPerfil);
+            }
             txtituloPerfilCliente.setText(listClientes.get(0).getDescripcion_corta());
             List<String> listaHorarios = new ArrayList<>();
             List<String> listaTelefonos = new ArrayList<>();

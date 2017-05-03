@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Info Guia</string>
+    <string name="app_name">InfoGuía</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_maps">Map</string>
@@ -18,4 +18,19 @@
     <string name="password">.minicubic.2016.80*</string>
     <string name="topic">/api/response/#</string>
     <string name="request_novedades">/api/request/android/Novedades/ClienteService/getPublicacion/</string>
+    <string name="request_sucursales">/api/request/android/Sucursales/ClienteService/getSucursales/</string>
+    <string name="facebook_app_id">273575669760990</string>
+    <string name="fb_login_protocol_scheme">273575669760990</string>
+    <string name="url_json_google_maps">https://maps.googleapis.com/maps/api/distancematrix/json?</string>
+    <string name="key">AIzaSyBMXKKpQIh0lsXE6iuMVY1iPuiQd5fnR4A</string>
+    <string name="progres_bar_title">InfoGuía</string>
+
+    <string-array name="query_suggestions">
+        <item>itau</item>
+        <item>familiar</item>
+        <item>bancos</item>
+        <item>cajeros</item>
+        <item>restaurantes</item>
+        <item>pubs</item>
+    </string-array>
 </resources>

@@ -10,12 +10,14 @@ import java.util.Date;
 public class PublicacionClienteDTO implements Serializable {
 
     private Long id;
+    private Long id_cliente;
     private Long tipo_publicaciones_id;
     private Long id_estado_publicacion;
     private String titulo;
     private String descripcion_corta;
     private String dir_imagen;
     private String boton_accion;
+
 
     public Long getId() {
         return id;
@@ -24,7 +26,13 @@ public class PublicacionClienteDTO implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+    public Long getId_cliente() {
+        return id_cliente;
+    }
 
+    public void setId_cliente(Long id_cliente) {
+        this.id_cliente = id_cliente;
+    }
     public Long getTipo_publicaciones_id() {
         return tipo_publicaciones_id;
     }

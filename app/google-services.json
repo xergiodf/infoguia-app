@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "757462473331",
+    "project_id": "infoguia-maps"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757462473331:android:1e9eab9052b38701",
+        "android_client_info": {
+          "package_name": "py.minicubic.info_guia_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "757462473331-fqdulp3t9j7gm7bjsdq7277jcbag5nli.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "757462473331-jaf63tmgco2c3j555mh7rtnrm8lsji79.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "py.minicubic.info_guia_app",
+            "certificate_hash": "7ba72e5a69e86785f8dbd48f32aae0d978a61409"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQfDoBvMi6V4CnOZVVg5XZs4dLaNlNdsk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

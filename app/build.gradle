@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 24
@@ -7,8 +8,8 @@ android {
         applicationId "py.minicubic.info_guia_app"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 2
-        versionName "1.1"
+        versionCode 7
+        versionName "1.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -18,12 +19,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    dexOptions {
+        javaMaxHeapSize "4g" //specify the heap size for the dex process
+    }
     lintOptions {
         checkReleaseBuilds false
         abortOnError false
     }
-    dexOptions {
-        javaMaxHeapSize "4g" //specify the heap size for the dex process
+
+    dataBinding {
+        enabled = true
     }
 }
 
@@ -36,8 +41,8 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.google.android.gms:play-services-maps:10.0.1'
-    compile 'com.google.android.gms:play-services:10.0.1'
+    compile 'com.google.android.gms:play-services-maps:9.0.0'
+    compile 'com.google.android.gms:play-services:9.0.0'
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.2'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.google.code.gson:gson:2.7'
@@ -47,5 +52,11 @@ dependencies {
     compile 'com.daimajia.slider:library:1.1.5@aar'
     compile 'com.nightonke:boommenu:2.0.7'
     compile 'com.makeramen:roundedimageview:2.3.0'
+    compile 'com.miguelcatalan:materialsearchview:1.4.0'
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'com.google.android.gms:play-services-auth:9.0.0'
+    compile 'com.google.maps.android:android-maps-utils:0.4.3'
     testCompile 'junit:junit:4.12'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
 }
+

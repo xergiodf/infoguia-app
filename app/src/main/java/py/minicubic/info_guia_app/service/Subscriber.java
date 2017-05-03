@@ -28,6 +28,7 @@ import py.minicubic.info_guia_app.event.ClientePerfilEvent;
 import py.minicubic.info_guia_app.event.ClientePromocionesEvent;
 import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
+import py.minicubic.info_guia_app.event.GetSucursalesEvent;
 import py.minicubic.info_guia_app.event.ListaClientesEvent;
 import py.minicubic.info_guia_app.event.NetworkStateChangeEvent;
 
@@ -64,9 +65,7 @@ public class Subscriber extends Service implements MqttCallback {
             connect();
 
         } else {
-
             Log.i(TAG, "onStartCommand: Client already connected. Disconnecting first...");
-
             // Hacemos esto en un nuevo thread para evitar el bloqueo de pantalla si la conexión está lenta o el broker tarda en responder. (pantalla negra)
             t = new Thread(new Runnable() {
                 @Override
@@ -190,6 +189,8 @@ public class Subscriber extends Service implements MqttCallback {
                         EventBus.getDefault().post(new ClientePerfilEvent(message.toString()));
                     }else if(pantallaId.equalsIgnoreCase("clientemain")){
                         EventBus.getDefault().post(new ListaClientesEvent(message.toString()));
+                    }else if(pantallaId.equalsIgnoreCase("sucursales")){
+                        EventBus.getDefault().post(new GetSucursalesEvent(message.toString()));
                     }
                 }
             });

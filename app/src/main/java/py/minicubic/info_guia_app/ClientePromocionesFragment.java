@@ -38,13 +38,16 @@ public class ClientePromocionesFragment extends Fragment {
     private boolean checkResponse;
     private ListView listView;
     private List<PublicacionClienteDTO> publicacionClienteDTO;
-    private PromocionesAdapter adapter;
+    private PromocionesAdapter mAdapter;
     private UUID uuid;
     private ListView listViewPromociones;
+    Long id = null ;
 
     public ClientePromocionesFragment() {
         // Required empty public constructor
     }
+
+
 
     @Override
     public void onStart() {
@@ -56,13 +59,15 @@ public class ClientePromocionesFragment extends Fragment {
         ClientePromocionesFragment fragment = new ClientePromocionesFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
+
         return fragment;
     }
 
-    private void cargarNovedades(){
+    private void cargarNovedades(Long idCliente){
         Request<PublicacionClienteDTO> request = new Request<>();
         PublicacionClienteDTO publicacionClienteDTO = new PublicacionClienteDTO();
         publicacionClienteDTO.setTipo_publicaciones_id(1L);
+        publicacionClienteDTO.setId_cliente(idCliente);
         request.setData(publicacionClienteDTO);
         request.setType("/api/request/android/Promociones/ClienteService/getPublicacion/"+ UUID.randomUUID().toString());
         EventBus.getDefault().post(new EventPublish(request));
@@ -84,7 +89,7 @@ public class ClientePromocionesFragment extends Fragment {
             progressDialog.dismiss();
             publicacionClienteDTO = response.getData();
             // specify an adapter (see also next example)
-            PromocionesAdapter mAdapter = new PromocionesAdapter(getActivity(),publicacionClienteDTO);
+            mAdapter = new PromocionesAdapter(getActivity(),publicacionClienteDTO);
             listViewPromociones.setAdapter(mAdapter);
             //Insertamos los registros traidos en la base de datos local...
             //new InsertarGestionHojaRutas().execute();
@@ -98,6 +103,20 @@ public class ClientePromocionesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle bundle = getArguments();
+        if (bundle != null){
+            id = bundle.getLong("idCliente");
+        }
+
+        cargarNovedades(id);
+        h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkResponse();
+            }
+        }, 6000);
     }
 
     @Override
@@ -106,20 +125,16 @@ public class ClientePromocionesFragment extends Fragment {
         // Inflate the layout for this fragment
         View mView = inflater.inflate(R.layout.fragment_cliente_promociones, container, false);
         listViewPromociones = (ListView) mView.findViewById(R.id.listViewPromociones);
-
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setTitle("Infoguia app");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Obteniendo promociones...");
-        progressDialog.show();
-        cargarNovedades();
-        h = new Handler();
-        h.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                checkResponse();
-            }
-        }, 6000);
+        if (publicacionClienteDTO != null){
+            mAdapter = new PromocionesAdapter(getActivity(),publicacionClienteDTO);
+            listViewPromociones.setAdapter(mAdapter);
+        }else {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setTitle(R.string.progres_bar_title);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setMessage("Obteniendo promociones...");
+            progressDialog.show();
+        }
 
         return mView;
     }
@@ -127,7 +142,7 @@ public class ClientePromocionesFragment extends Fragment {
     private void checkResponse() {
         if (!checkResponse){
             progressDialog.dismiss();
-            Toast.makeText(getActivity(), "No se pudo traer las hojas de rutas", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "No se pudo traer las promociones", Toast.LENGTH_SHORT).show();
         }
     }
 

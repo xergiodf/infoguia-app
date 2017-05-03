@@ -1,36 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/blanco"
+    android:orientation="vertical">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:orientation="horizontal"
         android:weightSum="1">
-
-        <TextView
-            android:id="@+id/txtDescripcioListaCliente"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="5dp"
-            android:text="Descripcion"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_weight="1.04" />
-
-        <RatingBar
-            android:id="@+id/ratingBar2"
-            style="@style/Widget.AppCompat.RatingBar.Indicator"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="132dp"
+            android:layout_height="106dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:elevation="0dp" />
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/txtDescripcioListaCliente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="Descripcion"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:textSize="17sp"
+                android:id="@+id/txtNombreSucursalListaCliente"/>
+            <RatingBar
+                android:id="@+id/ratingBar2"
+                style="@style/Widget.AppCompat.RatingBar.Indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:elevation="0dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <TextView
+                    android:id="@+id/txtAbiertoCerrado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0.97"
+                    android:text="Abierto ahora!"
+                    android:textColor="@color/verde" />
+
+
+
+                <ImageButton
+                    android:id="@+id/imageButtonHome"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@color/blanco"
+                    android:src="@drawable/ic_shortcut_home" />
+
+                <ImageButton
+                    android:id="@+id/imageButtonLocation"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_shortcut_location_on" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+
     </LinearLayout>
+
+
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,40 +97,30 @@
             android:layout_marginTop="5dp"
             android:text="Con promociones a travez de la app" />
     </LinearLayout>
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:weightSum="1">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="10dp"
-            android:id="@+id/txtAbiertoCerrado"
-            android:text="Abierto ahora!"
-            android:textColor="@color/verde"
-            android:layout_weight="0.46" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:id="@+id/txtKilometrosDist"
-            android:text="A 0 km"
-            android:layout_weight="0.46" />
-
-        <ImageButton
-            android:id="@+id/imageButtonHome"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_shortcut_home" />
-        <ImageButton
-            android:id="@+id/imageButtonLocation"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_shortcut_location_on" />
-
-
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:text="A 0 km" />
+        <TextView
+            android:id="@+id/txtDuracionDist"
+            android:layout_width="177dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="20dp"
+            android:gravity="right"
+            android:textColor="@color/azul"
+            android:layout_marginTop="10dp"
+            android:text="A 0 km" />
     </LinearLayout>
 
 </LinearLayout>

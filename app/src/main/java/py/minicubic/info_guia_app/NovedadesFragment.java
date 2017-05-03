@@ -83,7 +83,7 @@ public class NovedadesFragment extends Fragment {
             //new InsertarGestionHojaRutas().execute();
         }else {
             progressDialog.dismiss();
-            Toast.makeText(getActivity(), "Error al traer hojas de rutas", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Error al traer Novedades", Toast.LENGTH_SHORT).show();
             return;
         }
     }

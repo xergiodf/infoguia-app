@@ -23,6 +23,24 @@ public class ClienteDTO implements Serializable{
     private String telefono;
     private List<HorariosDTO> horarios;
     private List<SucursalClientesDTO> sucursalClientes;
+    private String distancia;
+    private String duracion;
+
+    public String getDistancia() {
+        return distancia;
+    }
+
+    public void setDistancia(String distancia) {
+        this.distancia = distancia;
+    }
+
+    public String getDuracion() {
+        return duracion;
+    }
+
+    public void setDuracion(String duracion) {
+        this.duracion = duracion;
+    }
 
     public Long getId() {
         return id;
