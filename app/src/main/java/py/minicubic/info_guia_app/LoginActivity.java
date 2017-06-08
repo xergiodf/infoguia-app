@@ -33,6 +33,8 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
+import py.minicubic.info_guia_app.util.CacheData;
+
 public class LoginActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener{
@@ -45,6 +47,7 @@ public class LoginActivity extends AppCompatActivity implements
     private TextView mStatusTextView;
     private ProgressDialog mProgressDialog;
     private SharedPreferences sharedPreferences;
+    private CacheData cacheData = CacheData.getInstance();
 
     //ID GOOGLE 757462473331-jaf63tmgco2c3j555mh7rtnrm8lsji79.apps.googleusercontent.com
     @Override

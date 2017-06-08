@@ -14,11 +14,11 @@ import com.squareup.picasso.Picasso;
 public class SucursalWindowInfoMapAdapterActivity extends AppCompatActivity implements GoogleMap.InfoWindowAdapter  {
 
     LayoutInflater inflater = null;
-    int imagen;
+    String photo_url;
 
-    public SucursalWindowInfoMapAdapterActivity(LayoutInflater inflater, int imagen){
+    public SucursalWindowInfoMapAdapterActivity(LayoutInflater inflater, String photo_url){
         this.inflater = inflater;
-        this.imagen = imagen;
+        this.photo_url = photo_url;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SucursalWindowInfoMapAdapterActivity extends AppCompatActivity impl
         }
         description.setText(marker.getSnippet());
         Picasso.with(this)
-                .load("http://45.79.159.123/itau.jpg")
+                .load(photo_url)
                 .into(img);
         return (infoWindows);
     }

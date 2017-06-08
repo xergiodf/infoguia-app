@@ -3,10 +3,13 @@ package py.minicubic.info_guia_app;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -18,6 +21,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -38,6 +42,7 @@ import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.dto.SucursalClientesDTO;
 import py.minicubic.info_guia_app.event.EventPublish;
 import py.minicubic.info_guia_app.event.GetSucursalesEvent;
+import py.minicubic.info_guia_app.util.CacheData;
 import py.minicubic.info_guia_app.util.MedirDistanciaDirecciones;
 import py.minicubic.info_guia_app.util.MyItem;
 
@@ -54,14 +59,26 @@ public class MapsSucursalesActivity extends FragmentActivity implements OnMapRea
     private ClusterManager<MyItem> clusterManager;
     private MedirDistanciaDirecciones medirDistanciaDirecciones = MedirDistanciaDirecciones.getInstance();
     String nombreSucursal = "";
+    private CacheData cacheData = CacheData.getInstance();
+    private String photo_url;
+    private FloatingActionButton listaMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        listaMap = (FloatingActionButton) findViewById(R.id.listaMap);
+        listaMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MapsSucursalesActivity.this.finish();
+            }
+        });
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         Long id = getIntent().getLongExtra("idCliente", 0);
-         nombreSucursal = getIntent().getStringExtra("sucursal");
+        nombreSucursal = getIntent().getStringExtra("sucursal");
+        photo_url = getIntent().getStringExtra("photo_url");
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(R.string.progres_bar_title);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -71,16 +88,16 @@ public class MapsSucursalesActivity extends FragmentActivity implements OnMapRea
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
     }
 
     private void cargarSucursales(Long id) {
         Request<SucursalClientesDTO> request = new Request<>();
-        medirDistanciaDirecciones.obTenerUbicacion();
         SucursalClientesDTO sucursalClientesDTO = new SucursalClientesDTO();
         sucursalClientesDTO.setCoordenadas(medirDistanciaDirecciones.getLatitud() + "|" + medirDistanciaDirecciones.getLongitud());
-        sucursalClientesDTO.setId_cliente(id);
+        sucursalClientesDTO.setId_cliente((id == 0 ? null : id));
         request.setData(sucursalClientesDTO);
-        request.setType(getString(R.string.request_sucursales) + UUID.randomUUID().toString());
+        request.setType(getString(R.string.request_sucursales) + cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 
@@ -105,7 +122,7 @@ public class MapsSucursalesActivity extends FragmentActivity implements OnMapRea
             try {
                 LatLng latLng = null;
                 mMap.clear();
-                LatLng paraguay = new LatLng(-25.456466, -56.057578);
+                LatLng paraguay = new LatLng(medirDistanciaDirecciones.getLatitud(), medirDistanciaDirecciones.getLongitud());
                 int imagen = 0;
                 clusterManager = new ClusterManager<MyItem>(MapsSucursalesActivity.this, mMap);
                 mMap.setOnCameraChangeListener(clusterManager);
@@ -135,15 +152,25 @@ public class MapsSucursalesActivity extends FragmentActivity implements OnMapRea
                             sucursalClientesDTO.getDireccion_fisica(),
                             BitmapDescriptorFactory.fromResource((nombreSucursal.equals(sucursalClientesDTO.getNombre_sucursal()) ? R.drawable.markeer : R.drawable.officebuilding)));
                     clusterManager.addItem(myItem);
+                    if (nombreSucursal.equalsIgnoreCase(sucursalClientesDTO.getNombre_sucursal())){
+                        PolylineOptions polylineOptions = new PolylineOptions()
+                                .add(new LatLng(medirDistanciaDirecciones.getLatitud(),medirDistanciaDirecciones.getLongitud()))
+                                .add(new LatLng(lat, lon))
+                                .width(5)
+                                .color(Color.BLUE)
+                                .geodesic(true);
+                        mMap.addPolyline(polylineOptions);
+                    }
+                    mMap.setInfoWindowAdapter(new SucursalWindowInfoMapAdapterActivity(getLayoutInflater(), sucursalClientesDTO.getPhoto_url()));
                 }
 
                 clusterManager.setRenderer(new OwnIconRendered(MapsSucursalesActivity.this, mMap, clusterManager));
                 // mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                 CameraPosition cameraPosition;
-                cameraPosition = new CameraPosition(paraguay,7,0,0);
+                cameraPosition = new CameraPosition(paraguay,14,0,0);
                 //.target(toledo).zoom(17).bearing(90).tilt(30).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                mMap.setInfoWindowAdapter(new SucursalWindowInfoMapAdapterActivity(getLayoutInflater(), imagen));
+
                 //mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                    // @Override
                     //public void onInfoWindowClick(Marker marker) {
@@ -195,11 +222,12 @@ public class MapsSucursalesActivity extends FragmentActivity implements OnMapRea
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LatLng paraguay = new LatLng(-25.456466, -56.057578);
+        LatLng paraguay = new LatLng(medirDistanciaDirecciones.getLatitud(),medirDistanciaDirecciones.getLongitud());
         //googleMap.addMarker(new MarkerOptions().position(sydney).title("Paraguay"));
+
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(paraguay));
         CameraPosition cameraPosition;
-        cameraPosition = new CameraPosition(paraguay,7,0,0);
+        cameraPosition = new CameraPosition(paraguay,14,0,0);
         //.target(toledo).zoom(17).bearing(90).tilt(30).build();
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         //mMap.setInfoWindowAdapter(new UserInfoMapAdapter(getLayoutInflater(), img));

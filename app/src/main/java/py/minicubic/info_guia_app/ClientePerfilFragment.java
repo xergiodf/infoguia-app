@@ -44,6 +44,7 @@ import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.dto.SucursalClientesDTO;
 import py.minicubic.info_guia_app.event.ClientePerfilEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
+import py.minicubic.info_guia_app.util.CacheData;
 
 
 public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallback{
@@ -60,8 +61,6 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
     private List<ClienteDTO> listClientes;
     private TextView txtituloPerfilCliente;
     private TextView txtDireccion;
-    private ListView listViewHorariosAtencionCliente;
-    private ListView listViewTelefonoClientePerfil;
     private double lat;
     private double lon;
     private String descripcion;
@@ -71,6 +70,11 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
     String coordenadas;
     String direccion;
     String telefono;
+    String photo_url, emails, web, horario_atencion;
+    Integer cant_sucursal;
+    private CacheData cacheData = CacheData.getInstance();
+    private TextView txtTelefonosPerfil, txtEmailPerfil, txtWebPerfil, txtHorariosPerfil;
+
     public ClientePerfilFragment() {
         // Required empty public constructor
     }
@@ -81,7 +85,7 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
         cliente.setId(id);
         cliente.setNombre_corto("");
         request.setData(cliente);
-        request.setType("/api/request/android/ClientePerfil/ClienteService/getClientesPorNombre/"+ UUID.randomUUID().toString());
+        request.setType("/api/request/android/ClientePerfil/ClienteService/getClientesPorNombre/"+ cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 
@@ -93,7 +97,12 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
         titulo = bundle.getString("titulo");
         coordenadas= bundle.getString("coordenadas");
         direccion = bundle.getString("direccion");
-        telefono = bundle.getString("telefono");
+        telefono = bundle.getString("telefonos");
+        photo_url = bundle.getString("photo_url");
+        horario_atencion = bundle.getString("horario_atencion");
+        web = bundle.getString("sitio_web");
+        emails = bundle.getString("emails");
+        cant_sucursal =  bundle.getInt("cant_sucursales", 0);
         //if (listClientes == null){
         //    cargarCliente(id);
         //}
@@ -118,21 +127,29 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
         mView = inflater.inflate(R.layout.fragment_cliente_perfil, container, false);
         context = getActivity();
         imageViewPerfil = (ImageView) mView.findViewById(R.id.imageViewPerfil);
-        listViewHorariosAtencionCliente = (ListView) mView.findViewById(R.id.listViewHorariosAtencionCliente);
-        listViewTelefonoClientePerfil = (ListView) mView.findViewById(R.id.listViewTelefonoClientePerfil);
+
         txtituloPerfilCliente = (TextView) mView.findViewById(R.id.txtTituloPerfilCliente);
         txtDireccion = (TextView) mView.findViewById(R.id.txtDireccion);
-        txtituloPerfilCliente.setText(titulo);
-        List<String> listaHorarios = new ArrayList<>();
-        List<String> listaTelefonos = new ArrayList<>();
-        listaTelefonos.add(telefono);
+        txtEmailPerfil = (TextView) mView.findViewById(R.id.txtEmailPerfil);
+        txtHorariosPerfil = (TextView) mView.findViewById(R.id.txtHorarioAtencionPerfil);
+        txtWebPerfil = (TextView) mView.findViewById(R.id.txtWebPerfil);
+        txtTelefonosPerfil = (TextView) mView.findViewById(R.id.txtTelefonoPerfil);
 
+        txtituloPerfilCliente.setText(titulo);
+        txtEmailPerfil.setText(emails);
+        txtHorariosPerfil.setText(horario_atencion);
+        txtWebPerfil.setText(web);
+        txtTelefonosPerfil.setText(telefono);
+
+        Picasso.with(getActivity())
+                .load(photo_url)
+                .into(imageViewPerfil);
             txtDireccion.setText(direccion);
+        if (coordenadas != null){
             lat = Double.parseDouble(coordenadas.split("\\|")[0]);
             lon = Double.parseDouble(coordenadas.split("\\|")[1]);
+        }
 
-        listViewHorariosAtencionCliente.setAdapter(new ListElementAdapter(listaHorarios, getActivity()));
-        listViewTelefonoClientePerfil.setAdapter( new ListElementAdapter(listaTelefonos, getActivity()));
         //cargarCliente();
         return mView;
     }
@@ -181,7 +198,7 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
             listaHorarios.add(horariosDTO.getDias() + ": " + horariosDTO.getHora_desde() + " a "+ horariosDTO.getHora_hasta() +" HS");
         }
         for (SucursalClientesDTO clienteSucursales : listClientes.get(0).getSucursalClientes()){
-            listaTelefonos.add(clienteSucursales.getTelefono());
+            listaTelefonos.add(clienteSucursales.getTelefonos());
             listaTelefonos.add(clienteSucursales.getTelefono2());
             listaTelefonos.add(clienteSucursales.getTelefono3());
             txtDireccion.setText(clienteSucursales.getDireccion_fisica());
@@ -191,8 +208,6 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
             descripcion = clienteSucursales.getNombre_sucursal();
             //mapView.getMapAsync(this);
         }
-        listViewHorariosAtencionCliente.setAdapter(new ListElementAdapter(listaHorarios, getActivity()));
-        listViewTelefonoClientePerfil.setAdapter( new ListElementAdapter(listaTelefonos, getActivity()));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -220,7 +235,7 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
                 listaHorarios.add(horariosDTO.getDias() + ": " + horariosDTO.getHora_desde() + " a "+ horariosDTO.getHora_hasta() +" HS");
             }
             for (SucursalClientesDTO clienteSucursales : listClientes.get(0).getSucursalClientes()){
-                listaTelefonos.add(clienteSucursales.getTelefono());
+                listaTelefonos.add(clienteSucursales.getTelefonos());
                 listaTelefonos.add(clienteSucursales.getTelefono2());
                 listaTelefonos.add(clienteSucursales.getTelefono3());
                 txtDireccion.setText(clienteSucursales.getDireccion_fisica());
@@ -230,9 +245,6 @@ public class ClientePerfilFragment extends Fragment  implements OnMapReadyCallba
                 descripcion = clienteSucursales.getNombre_sucursal();
                 mapView.getMapAsync(this);
             }
-            listViewHorariosAtencionCliente.setAdapter(new ListElementAdapter(listaHorarios, getActivity()));
-            listViewTelefonoClientePerfil.setAdapter( new ListElementAdapter(listaTelefonos, getActivity()));
-
             //Insertamos los registros traidos en la base de datos local...
             //new InsertarGestionHojaRutas().execute();
         }else {

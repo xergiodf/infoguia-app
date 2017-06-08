@@ -33,6 +33,7 @@ import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.event.BuscarClienteEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
 import py.minicubic.info_guia_app.event.ListaClientesEvent;
+import py.minicubic.info_guia_app.util.CacheData;
 
 public class BuscarClientesActivity extends AppCompatActivity {
 
@@ -44,6 +45,8 @@ public class BuscarClientesActivity extends AppCompatActivity {
     private Context context;
     private ArrayList<ClienteDTO> listaClientes = new ArrayList<>();
     MaterialSearchView searchView;
+    CacheData cacheData = CacheData.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +104,7 @@ public class BuscarClientesActivity extends AppCompatActivity {
         ClienteDTO clientesDto = new ClienteDTO();
         clientesDto.setNombre_corto(nombre);
         request.setData(clientesDto);
-        request.setType("/api/request/android/ClienteMain/ClienteService/getClientesPorNombre/"+ UUID.randomUUID().toString());
+        request.setType("/api/request/android/ClienteMain/ClienteService/getClientesPorNombre/"+ cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 

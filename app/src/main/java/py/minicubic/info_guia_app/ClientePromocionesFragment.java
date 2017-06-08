@@ -28,6 +28,7 @@ import py.minicubic.info_guia_app.dto.Request;
 import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.event.ClientePromocionesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
+import py.minicubic.info_guia_app.util.CacheData;
 
 
 public class ClientePromocionesFragment extends Fragment {
@@ -42,7 +43,7 @@ public class ClientePromocionesFragment extends Fragment {
     private UUID uuid;
     private ListView listViewPromociones;
     Long id = null ;
-
+    CacheData cacheData = CacheData.getInstance();
     public ClientePromocionesFragment() {
         // Required empty public constructor
     }
@@ -69,7 +70,7 @@ public class ClientePromocionesFragment extends Fragment {
         publicacionClienteDTO.setTipo_publicaciones_id(1L);
         publicacionClienteDTO.setId_cliente(idCliente);
         request.setData(publicacionClienteDTO);
-        request.setType("/api/request/android/Promociones/ClienteService/getPublicacion/"+ UUID.randomUUID().toString());
+        request.setType("/api/request/android/Promociones/ClienteService/getPublicacion/"+ cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -39,6 +40,7 @@ import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
 import py.minicubic.info_guia_app.event.GetSucursalesEvent;
 import py.minicubic.info_guia_app.event.ObtenerDistanciaSucursalesEvent;
+import py.minicubic.info_guia_app.util.CacheData;
 import py.minicubic.info_guia_app.util.MedirDistanciaDirecciones;
 import py.minicubic.info_guia_app.util.SimpleDividerItemDecoration;
 
@@ -56,6 +58,8 @@ public class ListaSucursalesFragment extends Fragment {
     private boolean checkResponse;
     private Context context;
     private MedirDistanciaDirecciones medirDistanciaDirecciones = MedirDistanciaDirecciones.getInstance();
+    private CacheData cacheData = CacheData.getInstance();
+    FloatingActionButton buttonMaps;
 
     public ListaSucursalesFragment() {
 
@@ -88,7 +92,7 @@ public class ListaSucursalesFragment extends Fragment {
         sucursalClientesDTO.setCoordenadas(medirDistanciaDirecciones.getLatitud().toString() + "|" + medirDistanciaDirecciones.getLongitud().toString());
         sucursalClientesDTO.setId_cliente(id);
         request.setData(sucursalClientesDTO);
-        request.setType(getString(R.string.request_sucursales)+ UUID.randomUUID().toString());
+        request.setType(getString(R.string.request_sucursales)+ cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 
@@ -130,9 +134,19 @@ public class ListaSucursalesFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_lista_sucursales, container, false);
         context = getActivity();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.listaSucursalesRecycler);
+        buttonMaps = (FloatingActionButton) rootView.findViewById(R.id.fabSucursales);
+        buttonMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), MapsSucursalesActivity.class);
+                i.putExtra("idCliente",new Long("0"));
+                i.putExtra("sucursal", "0");
+                startActivity(i);
+            }
+        });
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new SimpleDividerItemDecoration(context));
+        ///recyclerView.addItemDecoration(new SimpleDividerItemDecoration(context));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
         return rootView;

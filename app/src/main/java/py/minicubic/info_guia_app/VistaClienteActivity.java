@@ -1,12 +1,16 @@
 package py.minicubic.info_guia_app;
 
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,31 +35,49 @@ public class VistaClienteActivity extends AppCompatActivity {
         Long id =  getIntent().getLongExtra("idCliente",0);
         String titulo = getIntent().getStringExtra("titulo");
         String coordenadas =getIntent().getStringExtra("coordenadas");
-        String telefono = getIntent().getStringExtra("telefono");
+        String telefono = getIntent().getStringExtra("telefonos");
         String direccion = getIntent().getStringExtra("direccion");
+        String photo_url = getIntent().getStringExtra("photo_url");
         Bundle bundle = new Bundle();
         bundle.putSerializable("idCliente", id);
         bundle.putString("titulo", titulo);
         bundle.putString("coordenadas", coordenadas);
-        bundle.putString("telefono", telefono);
+        bundle.putString("telefonos", telefono);
         bundle.putString("direccion", direccion);
+        bundle.putString("photo_url", photo_url);
+        bundle.putString("horario_atencion", getIntent().getStringExtra("horario_atencion"));
+        bundle.putString("emails", getIntent().getStringExtra("emails"));
+        bundle.putString("sitio_web", getIntent().getStringExtra("sitio_web"));
+        bundle.putInt("cant_sucursales",getIntent().getIntExtra("cant_sucursales", 0));
 
         ClientePerfilFragment perfilFragment = new ClientePerfilFragment();
         perfilFragment.setArguments(bundle);
 
-        tabHost.addTab(tabHost.newTabSpec("perfil").setIndicator("Perfil"), perfilFragment.getClass(), bundle);
+        tabHost.addTab(tabHost.newTabSpec("perfil").setIndicator(getTabIndicator(tabHost.getContext(),"Perfil", null)), perfilFragment.getClass(), bundle);
 
         ListaSucursalesFragment sucursalesFragment = new ListaSucursalesFragment();
         bundle = new Bundle();
         bundle.putLong("idCliente", id);
+
         sucursalesFragment.setArguments(bundle);
 
         ClientePromocionesFragment promocionesFragment = new ClientePromocionesFragment();
         promocionesFragment.setArguments(bundle);
 
-        tabHost.addTab(tabHost.newTabSpec("informacion").setIndicator("Informacion"), ClienteInformacionFragment.class, null);
-        tabHost.addTab(tabHost.newTabSpec("promociones").setIndicator("Promociones"), promocionesFragment.getClass(), bundle);
-        tabHost.addTab(tabHost.newTabSpec("sucursales").setIndicator("Sucursales"), sucursalesFragment.getClass(), bundle);
+        //tabHost.addTab(tabHost.newTabSpec("informacion").setIndicator(getTabIndicator(tabHost.getContext(),"Informacion", null)), ClienteInformacionFragment.class, null);
+        if (getIntent().getIntExtra("cant_sucursales", 0) > 1){
+            tabHost.addTab(tabHost.newTabSpec("sucursales").setIndicator(getTabIndicator(tabHost.getContext(),"Sucursales", null)), sucursalesFragment.getClass(), bundle);
+        }
+
+        tabHost.addTab(tabHost.newTabSpec("promociones").setIndicator(getTabIndicator(tabHost.getContext(),"Promociones", null)), promocionesFragment.getClass(), bundle);
+
+    }
+
+    private View getTabIndicator(Context context, String title, Integer icon) {
+        View view = LayoutInflater.from(context).inflate(R.layout.tab_layout, null);
+        TextView tv = (TextView) view.findViewById(R.id.textViewTab);
+        tv.setText(title);
+        return view;
     }
 
     @Override

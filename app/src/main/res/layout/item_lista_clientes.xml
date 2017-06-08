@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/blanco"
+    android:layout_margin="5dp"
     android:orientation="vertical">
 
 
@@ -11,9 +13,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="1">
+
         <ImageView
+            android:id="@+id/imageViewListaClientes"
             android:layout_width="132dp"
-            android:layout_height="106dp" />
+            android:layout_height="106dp"
+            android:scaleType="fitXY"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -113,14 +118,13 @@
             android:text="A 0 km" />
         <TextView
             android:id="@+id/txtDuracionDist"
-            android:layout_width="177dp"
+            android:layout_width="145dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="0dp"
             android:gravity="right"
             android:textColor="@color/azul"
             android:layout_marginTop="10dp"
             android:text="A 0 km" />
     </LinearLayout>
-
 </LinearLayout>

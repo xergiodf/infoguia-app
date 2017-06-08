@@ -17,7 +17,15 @@ public class PublicacionClienteDTO implements Serializable {
     private String descripcion_corta;
     private String dir_imagen;
     private String boton_accion;
+    private String url;
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public Long getId() {
         return id;

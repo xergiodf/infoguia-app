@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -42,26 +46,42 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 import py.minicubic.info_guia_app.adapters.TransformerAdapter;
+import py.minicubic.info_guia_app.dto.ClienteDTO;
+import py.minicubic.info_guia_app.dto.PublicacionClienteDTO;
+import py.minicubic.info_guia_app.dto.Request;
+import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.event.BuscarClienteEvent;
+import py.minicubic.info_guia_app.event.CargarPublicacionPrincipalEvent;
+import py.minicubic.info_guia_app.event.CargarPublicacionSecundariaEvent;
+import py.minicubic.info_guia_app.event.EventPublish;
+import py.minicubic.info_guia_app.event.SubscriberAlready;
 import py.minicubic.info_guia_app.rest.HttpRequest;
+import py.minicubic.info_guia_app.util.CacheData;
 import py.minicubic.info_guia_app.util.MedirDistanciaDirecciones;
 
 
-public class PortadaFragment extends Fragment implements BaseSliderView.OnSliderClickListener,
+public class PortadaFragment extends Fragment implements
+        BaseSliderView.OnSliderClickListener,
         ViewPagerEx.OnPageChangeListener {
 
     private SliderLayout mDemoSlider;
     //private SliderLayout mDemoSlider2;
     private ProgressDialog progressDialog;
     private Handler h;
+    private Gson gson = new GsonBuilder().create();
     private boolean checkResponse;
+    private boolean online;
     Button btnInformacionesPortada, btnNegociosPortada, btnOcioPortada, btnTurismoPortada, btnServiciosPortada;
     private ImageView imageViewOfertaItau, imageViewOfertaPromoItau, imageViewOfertaDominos, imageViewFavoritoGajas, imageViewFavoritoAuricular, imageViewRecomendadoNotebook,
                     imageViewOfertaBurguer, imageViewOfertaBolson, imageViewOfertaZapato, imageViewFavoritoMochila, imageViewRecomendadoTenis, imageViewRecomendadoHeineken;
-
+    TextView txtMarcaDestacada1, txtMarcaDestacada2, txtMarcaDestacada3,txtMarcaDestacada4;
+    private CacheData cacheData = CacheData.getInstance();
     public PortadaFragment() {
         // Required empty public constructor
     }
@@ -85,10 +105,6 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
-
     }
 
     @Override
@@ -102,61 +118,54 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_portada, container, false);
-        mDemoSlider = (SliderLayout) view.findViewById(R.id.slider);
-        //mDemoSlider2 = (SliderLayout) view.findViewById(R.id.slider2);
 
-        HashMap<String,String> url_maps = new HashMap<String, String>();
-        url_maps.put("Hannibal", "http://static2.hypable.com/wp-content/uploads/2013/12/hannibal-season-2-release-date.jpg");
-        url_maps.put("Big Bang Theory", "http://tvfiles.alphacoders.com/100/hdclearart-10.png");
-        url_maps.put("House of Cards", "http://cdn3.nflximg.net/images/3093/2043093.jpg");
-        url_maps.put("Game of Thrones", "http://images.boomsbeat.com/data/images/full/19640/game-of-thrones-season-4-jpg.jpg");
-
-        HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
-
-        for(String name : url_maps.keySet()){
-            TextSliderView textSliderView = new TextSliderView(getActivity());
-            // initialize a SliderLayout
-            textSliderView
-                    .description(name)
-                    .image(url_maps.get(name))
-                    .setScaleType(BaseSliderView.ScaleType.Fit)
-                    .setOnSliderClickListener(this);
-
-            //add your extra information
-            textSliderView.bundle(new Bundle());
-            textSliderView.getBundle()
-                    .putString("extra",name);
-
-            mDemoSlider.addSlider(textSliderView);
-        }
-        mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Accordion);
-        mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
-        mDemoSlider.setCustomAnimation(new DescriptionAnimation());
-        mDemoSlider.setDuration(4000);
-        mDemoSlider.addOnPageChangeListener(this);
-
-
+        mDemoSlider =(SliderLayout) view.findViewById(R.id.slider);
+        txtMarcaDestacada1 = (TextView) view.findViewById(R.id.txtMarcaDestacada1);
+        txtMarcaDestacada2 = (TextView) view.findViewById(R.id.txtMarcaDestacada2);
+        txtMarcaDestacada3 = (TextView) view.findViewById(R.id.txtMarcaDestacada3);
+        txtMarcaDestacada4 = (TextView) view.findViewById(R.id.txtMarcaDestacada4);
         imageViewOfertaItau = (ImageView) view.findViewById(R.id.imageViewOfertaItau);
-        Picasso.with(getActivity())
-                .load("http://45.79.159.123/itau.jpg")
-                .into(imageViewOfertaItau);
+        imageViewOfertaItau.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("http://www.infoguia.com.py"); // missing 'http://' will cause crashed
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            }
+        });
 
         imageViewOfertaPromoItau = (ImageView) view.findViewById(R.id.imageViewOfertasPromoItau);
-        Picasso.with(getActivity())
-                .load("http://45.79.159.123/promo_itau.jpg")
-                .into(imageViewOfertaPromoItau);
+        imageViewOfertaPromoItau.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("http://www.infoguia.com.py"); // missing 'http://' will cause crashed
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            }
+        });
 
         imageViewOfertaDominos = (ImageView) view.findViewById(R.id.imageViewOfertasDominos);
-        Picasso.with(getActivity())
-                .load("http://45.79.159.123/domino.jpeg")
-                .into(imageViewOfertaDominos);
+        imageViewOfertaDominos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("http://www.infoguia.com.py"); // missing 'http://' will cause crashed
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            }
+        });
 
         imageViewOfertaBurguer = (ImageView) view.findViewById(R.id.imageViewOfertasBurguer);
-        Picasso.with(getActivity())
-                .load("http://45.79.159.123/domino.jpeg")
-                .into(imageViewOfertaBurguer);
+        imageViewOfertaBurguer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("http://www.infoguia.com.py"); // missing 'http://' will cause crashed
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            }
+        });
 
-
+        cargarPublicaciones();
+        cargarPublicacionesSecundarias();
         btnInformacionesPortada = (Button) view.findViewById(R.id.btnInformacionPortada);
         btnNegociosPortada = (Button) view.findViewById(R.id.btnNegociosPortada);
         btnOcioPortada = (Button) view.findViewById(R.id.btnOcioPortada);
@@ -166,7 +175,7 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("idCategoria",1);
+                i.putExtra("parametro", "informaciones");
                 getActivity().startActivity(i);
             }
         });
@@ -174,7 +183,7 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("idCategoria",2);
+                i.putExtra("parametro","negocios");
                 getActivity().startActivity(i);
             }
         });
@@ -182,7 +191,7 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("idCategoria",3);
+                i.putExtra("parametro","ocio");
                 getActivity().startActivity(i);
             }
         });
@@ -190,7 +199,7 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("idCategoria",4);
+                i.putExtra("parametro","turismo");
                 getActivity().startActivity(i);
             }
         });
@@ -198,11 +207,30 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("idCategoria",5);
+                i.putExtra("parametro","servicios");
                 getActivity().startActivity(i);
             }
         });
+
         return view;
+    }
+
+    private void cargarPublicaciones(){
+        Request<PublicacionClienteDTO> request = new Request<>();
+        PublicacionClienteDTO publicacionClienteDTO = new PublicacionClienteDTO();
+        publicacionClienteDTO.setTipo_publicaciones_id(3L);
+        request.setData(publicacionClienteDTO);
+        request.setType("/api/request/android/Publicaciones/ClienteService/getPublicacion/"+ cacheData.getImei());
+        EventBus.getDefault().post(new EventPublish(request));
+    }
+
+    private void cargarPublicacionesSecundarias(){
+        Request<PublicacionClienteDTO> request = new Request<>();
+        PublicacionClienteDTO publicacionClienteDTO = new PublicacionClienteDTO();
+        publicacionClienteDTO.setTipo_publicaciones_id(4L);
+        request.setData(publicacionClienteDTO);
+        request.setType("/api/request/android/PublicacionesSecundarias/ClienteService/getPublicacion/"+ cacheData.getImei());
+        EventBus.getDefault().post(new EventPublish(request));
     }
 
     @Override
@@ -212,6 +240,93 @@ public class PortadaFragment extends Fragment implements BaseSliderView.OnSlider
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSubscrbierAlready(SubscriberAlready subscriberAlready){
+        cargarPublicaciones();
+        cargarPublicacionesSecundarias();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onCargarPuclicaciones(CargarPublicacionPrincipalEvent event){
+        Type listType = new TypeToken<Response<List<PublicacionClienteDTO>>>(){}.getType();
+        Response<List<PublicacionClienteDTO>> response = gson.fromJson(event.getMessage(), listType);
+        HashMap<String,String> url_maps = new HashMap<String, String>();
+        if (response.getCodigo() == 200){
+            for (PublicacionClienteDTO publicacionClienteDTO:  response.getData()){
+                url_maps.put(publicacionClienteDTO.getTitulo(), publicacionClienteDTO.getUrl());
+            }
+
+            //url_maps.put("Hannibal", "http://static2.hypable.com/wp-content/uploads/2013/12/hannibal-season-2-release-date.jpg");
+            //url_maps.put("Big Bang Theory", "http://tvfiles.alphacoders.com/100/hdclearart-10.png");
+            //url_maps.put("House of Cards", "http://cdn3.nflximg.net/images/3093/2043093.jpg");
+            //url_maps.put("Game of Thrones", "http://images.boomsbeat.com/data/images/full/19640/game-of-thrones-season-4-jpg.jpg");
+
+            HashMap<String,Integer> file_maps = new HashMap<String, Integer>();
+
+            for(String name : url_maps.keySet()){
+                TextSliderView textSliderView = new TextSliderView(getActivity());
+                // initialize a SliderLayout
+                textSliderView
+                        .description(name)
+                        .image(url_maps.get(name))
+                        .setScaleType(BaseSliderView.ScaleType.Fit)
+                        .setOnSliderClickListener(this);
+
+                //add your extra information
+                textSliderView.bundle(new Bundle());
+                textSliderView.getBundle()
+                        .putString("extra",name);
+
+                mDemoSlider.addSlider(textSliderView);
+            }
+            mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Accordion);
+            mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+            mDemoSlider.setCustomAnimation(new DescriptionAnimation());
+            mDemoSlider.setDuration(4000);
+            mDemoSlider.addOnPageChangeListener(this);
+            mDemoSlider.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri uri = Uri.parse("http://www.infoguia.com.py"); // missing 'http://' will cause crashed
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            });
+
+        }else {
+
+        }
+    }
+
+    @Subscribe
+    public void onCargarPublicacionSecundariaEvent(CargarPublicacionSecundariaEvent event){
+        Type listType = new TypeToken<Response<List<PublicacionClienteDTO>>>(){}.getType();
+        Response<List<PublicacionClienteDTO>> response = gson.fromJson(event.getMessage(), listType);
+        HashMap<String,String> url_maps = new HashMap<String, String>();
+        if (response.getCodigo() == 200){
+
+            txtMarcaDestacada1.setText(response.getData().get(0).getTitulo());
+            txtMarcaDestacada2.setText(response.getData().get(1).getTitulo());
+            txtMarcaDestacada3.setText(response.getData().get(2).getTitulo());
+            txtMarcaDestacada4.setText(response.getData().get(3).getTitulo());
+
+            Picasso.with(getActivity())
+                    .load(response.getData().get(0).getUrl())
+                    .into(imageViewOfertaItau);
+
+            Picasso.with(getActivity())
+                    .load(response.getData().get(1).getUrl())
+                    .into(imageViewOfertaPromoItau);
+            Picasso.with(getActivity())
+                    .load(response.getData().get(2).getUrl())
+                    .into(imageViewOfertaDominos);
+            Picasso.with(getActivity())
+                    .load(response.getData().get(3).getUrl())
+                    .into(imageViewOfertaBurguer);
+        }
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onBuscarClienteEvent(BuscarClienteEvent evet){
         progressDialog = new ProgressDialog(getActivity());

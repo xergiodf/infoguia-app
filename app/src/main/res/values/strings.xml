@@ -16,7 +16,7 @@
     <string name="host">tcp://45.79.159.123:1883</string>
     <string name="user">minicubic</string>
     <string name="password">.minicubic.2016.80*</string>
-    <string name="topic">/api/response/#</string>
+    <string name="topic">/api/response/</string>
     <string name="request_novedades">/api/request/android/Novedades/ClienteService/getPublicacion/</string>
     <string name="request_sucursales">/api/request/android/Sucursales/ClienteService/getSucursales/</string>
     <string name="facebook_app_id">273575669760990</string>

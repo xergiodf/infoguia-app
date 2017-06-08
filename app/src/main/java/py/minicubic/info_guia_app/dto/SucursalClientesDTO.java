@@ -14,13 +14,22 @@ public class SucursalClientesDTO implements Serializable{
     private String coordenadas;
     private Long id_cliente;
     private String horarios;
-    private String telefono;
+    private String telefonos;
     private String telefono2;
     private String telefono3;
     private Double lat;
     private Double lon;
     private String duracion;
     private String distancia;
+    private String photo_url;
+
+    public String getPhoto_url() {
+        return photo_url;
+    }
+
+    public void setPhoto_url(String photo_url) {
+        this.photo_url = photo_url;
+    }
 
     public String getDuracion() {
         return duracion;
@@ -86,12 +95,12 @@ public class SucursalClientesDTO implements Serializable{
         this.horarios = horarios;
     }
 
-    public String getTelefono() {
-        return telefono;
+    public String getTelefonos() {
+        return telefonos;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setTelefonos(String telefono) {
+        this.telefonos = telefono;
     }
 
     public String getTelefono2() {

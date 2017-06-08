@@ -20,11 +20,57 @@ public class ClienteDTO implements Serializable{
     private String nombre_sucursal;
     private String direccion_fisica;
     private String coordenadas;
-    private String telefono;
+    private String telefonos;
     private List<HorariosDTO> horarios;
     private List<SucursalClientesDTO> sucursalClientes;
     private String distancia;
     private String duracion;
+    private String photo_url;
+    private String horario_atencion;
+    private String emails;
+    private String sitio_web;
+    private Integer cant_sucursales;
+
+
+    public Integer getCant_sucursales() {
+        return cant_sucursales;
+    }
+
+    public void setCant_sucursales(Integer cant_sucursales) {
+        this.cant_sucursales = cant_sucursales;
+    }
+
+    public String getHorario_atencion() {
+        return horario_atencion;
+    }
+
+    public void setHorario_atencion(String horario_atencion) {
+        this.horario_atencion = horario_atencion;
+    }
+
+    public String getEmails() {
+        return emails;
+    }
+
+    public void setEmails(String emails) {
+        this.emails = emails;
+    }
+
+    public String getSitio_web() {
+        return sitio_web;
+    }
+
+    public void setSitio_web(String sitio_web) {
+        this.sitio_web = sitio_web;
+    }
+
+    public String getPhoto_url() {
+        return photo_url;
+    }
+
+    public void setPhoto_url(String photo_url) {
+        this.photo_url = photo_url;
+    }
 
     public String getDistancia() {
         return distancia;
@@ -122,12 +168,12 @@ public class ClienteDTO implements Serializable{
         this.coordenadas = coordenadas;
     }
 
-    public String getTelefono() {
-        return telefono;
+    public String getTelefonos() {
+        return telefonos;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setTelefonos(String telefono) {
+        this.telefonos = telefono;
     }
 
     public List<HorariosDTO> getHorarios() {

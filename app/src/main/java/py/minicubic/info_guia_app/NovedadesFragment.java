@@ -29,6 +29,7 @@ import py.minicubic.info_guia_app.dto.Request;
 import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
+import py.minicubic.info_guia_app.util.CacheData;
 
 
 public class NovedadesFragment extends Fragment {
@@ -41,6 +42,7 @@ public class NovedadesFragment extends Fragment {
     private Handler h;
     private boolean checkResponse;
     private Context context;
+    private CacheData cacheData = CacheData.getInstance();
 
     public NovedadesFragment() {
         // Required empty public constructor
@@ -58,7 +60,7 @@ public class NovedadesFragment extends Fragment {
         PublicacionClienteDTO publicacionClienteDTO = new PublicacionClienteDTO();
         publicacionClienteDTO.setTipo_publicaciones_id(2L);
         request.setData(publicacionClienteDTO);
-        request.setType(getString(R.string.request_novedades)+ UUID.randomUUID().toString());
+        request.setType(getString(R.string.request_novedades)+ cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 
@@ -73,7 +75,6 @@ public class NovedadesFragment extends Fragment {
         Type listType = new TypeToken<Response<List<PublicacionClienteDTO>>>(){}.getType();
         Response<List<PublicacionClienteDTO>> response = gson.fromJson(event.getMessage(), listType);
         if (response.getCodigo() == 200){
-
             checkResponse = true;
             progressDialog.dismiss();
             novedadesList = response.getData();

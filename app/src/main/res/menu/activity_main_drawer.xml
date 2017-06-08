@@ -3,32 +3,44 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_perfil"
+            android:icon="@drawable/ic_perfil"
+            android:title="Mi Perfil" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_lista_deseos"
+            android:icon="@drawable/ic_corazon"
+            android:title="Lista de Deseos" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:icon="@drawable/ic_sitios_favoritos"
+            android:title="Sitios Favoritos" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
+            android:id="@+id/nav_ajustes"
+            android:icon="@drawable/ic_setting"
             android:title="Ajustes" />
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Compartir" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Compartir" />
+                android:id="@+id/acercade"
+                android:icon="@drawable/ic_acercade"
+                android:title="Acerca de Infoguía" />
+            <item
+                android:id="@+id/advertencialegal"
+                android:icon="@drawable/ic_martillo"
+                android:title="Advertencia Legal" />
+            <item
+                android:id="@+id/ayuda"
+                android:icon="@drawable/ic_ayuda"
+                android:title="Ayuda" />
             <item
                 android:id="@+id/cerrarSesion"
-                android:icon="@drawable/ic_menu_send"
+                android:icon="@drawable/ic_cerrar_sesion"
                 android:title="Cerrar Sesion" />
         </menu>
     </item>

@@ -6,7 +6,7 @@ android {
     buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "py.minicubic.info_guia_app"
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion 24
         versionCode 7
         versionName "1.6"
@@ -58,5 +58,6 @@ dependencies {
     compile 'com.google.maps.android:android-maps-utils:0.4.3'
     testCompile 'junit:junit:4.12'
     compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.android.support:support-annotations:25.3.1'
 }
 

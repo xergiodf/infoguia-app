@@ -7,11 +7,4 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_search"
-        android:title="@android:string/search_go"
-        app:showAsAction="ifRoom"
-        app:actionViewClass="com.lapism.searchview.SearchView"
-        android:visible="false"/>
-
 </menu>

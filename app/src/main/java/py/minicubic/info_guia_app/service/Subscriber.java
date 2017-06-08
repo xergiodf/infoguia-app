@@ -1,11 +1,16 @@
 package py.minicubic.info_guia_app.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,6 +29,10 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import py.minicubic.info_guia_app.R;
 import py.minicubic.info_guia_app.dto.Request;
+import py.minicubic.info_guia_app.event.CargarPublicacionPrincipalEvent;
+import py.minicubic.info_guia_app.event.CargarPublicacionSecundariaEvent;
+import py.minicubic.info_guia_app.event.CategoriaEvent;
+import py.minicubic.info_guia_app.event.ClienteCategoriasEvent;
 import py.minicubic.info_guia_app.event.ClientePerfilEvent;
 import py.minicubic.info_guia_app.event.ClientePromocionesEvent;
 import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
@@ -31,6 +40,8 @@ import py.minicubic.info_guia_app.event.EventPublish;
 import py.minicubic.info_guia_app.event.GetSucursalesEvent;
 import py.minicubic.info_guia_app.event.ListaClientesEvent;
 import py.minicubic.info_guia_app.event.NetworkStateChangeEvent;
+import py.minicubic.info_guia_app.event.SubscriberAlready;
+import py.minicubic.info_guia_app.util.CacheData;
 
 /**
  * Created by hectorvillalba on 2/28/17.
@@ -42,6 +53,8 @@ public class Subscriber extends Service implements MqttCallback {
     private Thread t;
     private MqttAsyncClient client;
     private Gson gson = new GsonBuilder().create();
+    private SharedPreferences sharedPreferences;
+    private CacheData cacheData = CacheData.getInstance();
 
     @Nullable
     @Override
@@ -84,7 +97,6 @@ public class Subscriber extends Service implements MqttCallback {
     @Override
     public void onCreate() {
         Log.i(TAG, "new Service");
-        EventBus.getDefault().register(this);
         newServiceCreated = true;
         t = new Thread(new Runnable() {
             @Override
@@ -96,22 +108,25 @@ public class Subscriber extends Service implements MqttCallback {
     }
 
     public synchronized void connect() {
+        try {
+            EventBus.getDefault().register(this);
+        } catch (Exception e) {
+            Log.e(TAG, "Event bus error: " + e.getMessage());
+        }
         MemoryPersistence dataStore = new MemoryPersistence();
         try {
 
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setCleanSession(true);
             options.setUserName(getApplication().getString(R.string.user));
             options.setPassword(getApplication().getString(R.string.password).toCharArray());
-            options.setKeepAliveInterval(300);
+            options.setCleanSession(false);
             String clientId = MqttAsyncClient.generateClientId();
 
             client = new MqttAsyncClient(getApplication().getString(R.string.host),clientId, dataStore);
-
             Log.i("Client","Connected..."); //$NON-NLS-1$
 
             IMqttToken mqttToken = client.connect(options);
-            mqttToken.waitForCompletion(10000);
+            mqttToken.waitForCompletion(3000);
             if (mqttToken.isComplete())
             {
                 if (mqttToken.getException() != null)
@@ -123,18 +138,17 @@ public class Subscriber extends Service implements MqttCallback {
             if(client.isConnected()){
                 subscribe();
             }
+            EventBus.getDefault().post(new SubscriberAlready("iniciado"));
         } catch (MqttException e) {
             e.printStackTrace();
-
-            // TODO:  Log
-            System.exit(1);
         }
     }
 
     public boolean subscribe() {
         int qos = 1;
         try {
-            client.subscribe(getApplication().getString(R.string.topic), 2);
+
+            client.subscribe(getApplication().getString(R.string.topic) + cacheData.getImei() + "/#", 2);
             return true;
 
         } catch (MqttException e) {
@@ -152,7 +166,7 @@ public class Subscriber extends Service implements MqttCallback {
         try {
             EventBus.getDefault().unregister(this);
             if (client != null) {
-                client.unsubscribe(getApplication().getString(R.string.topic));
+                client.unsubscribe(getApplication().getString(R.string.topic) + cacheData.getImei() + "/#");
                 client.disconnect();
 
                 Log.d(TAG, "Mqtt client disconnected");
@@ -176,7 +190,7 @@ public class Subscriber extends Service implements MqttCallback {
     @Override
     public void messageArrived(String topic, final MqttMessage message) throws Exception {
         String topicos[] = topic.split("/");
-        final String pantallaId = topicos[4];
+        final String pantallaId = topicos[5];
             Log.i(TAG, "llego respuesta de ClienteService: " + message.toString());
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
@@ -191,6 +205,14 @@ public class Subscriber extends Service implements MqttCallback {
                         EventBus.getDefault().post(new ListaClientesEvent(message.toString()));
                     }else if(pantallaId.equalsIgnoreCase("sucursales")){
                         EventBus.getDefault().post(new GetSucursalesEvent(message.toString()));
+                    }else if(pantallaId.equalsIgnoreCase("publicaciones")){
+                        EventBus.getDefault().post(new CargarPublicacionPrincipalEvent(message.toString()));
+                    }else if (pantallaId.equalsIgnoreCase("categoria")){
+                        EventBus.getDefault().post(new CategoriaEvent(message.toString()));
+                    }else if (pantallaId.equalsIgnoreCase("clientecategorias")){
+                        EventBus.getDefault().post(new ClienteCategoriasEvent(message.toString()));
+                    }else if(pantallaId.equalsIgnoreCase("publicacionessecundarias")){
+                        EventBus.getDefault().post(new CargarPublicacionSecundariaEvent(message.toString()));
                     }
                 }
             });
@@ -224,7 +246,6 @@ public class Subscriber extends Service implements MqttCallback {
             if (request.getType().contains("Cliente")){
                 client.publish(request.getType(), mqttMessage);
             }
-
         }catch (Exception e){
             e.printStackTrace();
         }

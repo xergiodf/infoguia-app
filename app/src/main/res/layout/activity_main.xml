@@ -19,8 +19,12 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        app:theme="@style/NavigationDrawerStyle"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:itemTextAppearance="@style/NavDrawerTextStyle"
+        app:menu="@menu/activity_main_drawer">
+
+        </android.support.design.widget.NavigationView>
 
     <FrameLayout
         android:layout_width="match_parent"

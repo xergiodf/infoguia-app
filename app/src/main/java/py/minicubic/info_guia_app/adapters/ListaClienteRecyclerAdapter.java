@@ -3,13 +3,17 @@ package py.minicubic.info_guia_app.adapters;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,22 +73,42 @@ public class ListaClienteRecyclerAdapter extends RecyclerView.Adapter<ListaClien
             public void onClick(View v) {
                 Intent i = new Intent(activity, VistaClienteActivity.class);
                 i.putExtra("idCliente",clienteDTO.getId());
-                i.putExtra("titulo", clienteDTO.getNombre_completo() + " (" + clienteDTO.getNombre_sucursal() +")");
+                i.putExtra("titulo", clienteDTO.getNombre_completo() + (clienteDTO.getCant_sucursales() >1 ? " (" + clienteDTO.getNombre_sucursal() +")" : "") );
                 i.putExtra("coordenadas", clienteDTO.getCoordenadas());
-                i.putExtra("telefono", clienteDTO.getTelefono());
+                i.putExtra("telefonos", clienteDTO.getTelefonos());
                 i.putExtra("direccion", clienteDTO.getDireccion_fisica());
+                i.putExtra("photo_url", clienteDTO.getPhoto_url());
+                i.putExtra("horario_atencion", clienteDTO.getHorario_atencion());
+                i.putExtra("emails", clienteDTO.getEmails());
+                i.putExtra("sitio_web", clienteDTO.getSitio_web());
+                i.putExtra("cant_sucursales", clienteDTO.getCant_sucursales());
                 activity.startActivity(i);
             }
         });
         holder.imageButtonLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(activity, MapsSucursalesActivity.class);
-                i.putExtra("idCliente",clienteDTO.getId());
-                i.putExtra("sucursal", clienteDTO.getNombre_sucursal());
-                activity.startActivity(i);
+                //Intent i = new Intent(activity, MapsSucursalesActivity.class);
+                //i.putExtra("idCliente",clienteDTO.getId());
+                //i.putExtra("sucursal", clienteDTO.getNombre_sucursal());
+                //i.putExtra("photo_url", clienteDTO.getPhoto_url());
+                //activity.startActivity(i);
+                //Uri gmmIntentUri = Uri.parse("geo:" + clienteDTO.getCoordenadas().split("\\|")[0].toString() + "," +clienteDTO.getCoordenadas().split("\\|")[1].toString());
+                //Uri gmmIntentUri = Uri.parse("geo:0,0?q="+ clienteDTO.getCoordenadas().split("\\|")[0].toString()
+                //        + "," +clienteDTO.getCoordenadas().split("\\|")[1].toString()+"("+clienteDTO.getNombre_corto()+"+"+ clienteDTO.getNombre_sucursal() + ")");
+                //Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                //mapIntent.setPackage("com.google.android.apps.maps");
+                //activity.startActivity(mapIntent);
+                Uri gmmIntentUri = Uri.parse("google.navigation:q="+ clienteDTO.getCoordenadas().split("\\|")[0].toString()
+                              + "," +clienteDTO.getCoordenadas().split("\\|")[1].toString());
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                activity.startActivity(mapIntent);
             }
         });
+        Picasso.with(activity)
+                .load(clienteDTO.getPhoto_url())
+                .into(holder.imageViewListaClientes);
     }
 
     @Override
@@ -96,6 +120,7 @@ public class ListaClienteRecyclerAdapter extends RecyclerView.Adapter<ListaClien
         public TextView txtDescripcioListaCliente, txtAbiertoCerrado,txtKilometrosDist, txtDuracionDist, txtNombreSucursalListaCliente;
         public ImageButton imageButtonHome;
         public ImageButton imageButtonLocation;
+        public ImageView imageViewListaClientes;
 
         public MyViewHoldder(View itemView) {
             super(itemView);
@@ -106,6 +131,7 @@ public class ListaClienteRecyclerAdapter extends RecyclerView.Adapter<ListaClien
             txtNombreSucursalListaCliente = (TextView) itemView.findViewById(R.id.txtNombreSucursalListaCliente);
             imageButtonHome = (ImageButton) itemView.findViewById(R.id.imageButtonHome);
             imageButtonLocation = (ImageButton) itemView.findViewById(R.id.imageButtonLocation);
+            imageViewListaClientes = (ImageView) itemView.findViewById(R.id.imageViewListaClientes);
         }
     }
 

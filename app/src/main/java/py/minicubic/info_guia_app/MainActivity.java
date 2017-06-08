@@ -2,24 +2,34 @@ package py.minicubic.info_guia_app;
 
 import android.*;
 import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -65,14 +75,19 @@ import py.minicubic.info_guia_app.event.ClientePerfilEvent;
 import py.minicubic.info_guia_app.event.ClienteServiceNovedadesEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
 import py.minicubic.info_guia_app.event.ListaClientesEvent;
+import py.minicubic.info_guia_app.event.SubscriberAlready;
 import py.minicubic.info_guia_app.rest.HttpRequest;
 import py.minicubic.info_guia_app.service.LocationService;
+import py.minicubic.info_guia_app.service.Service2;
+import py.minicubic.info_guia_app.service.Subscriber;
+import py.minicubic.info_guia_app.util.CacheData;
 import py.minicubic.info_guia_app.util.MedirDistanciaDirecciones;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_CALENDAR = 5 ;
     private FragmentTabHost tabHost;
     private Gson gson = new GsonBuilder().create();
     private ProgressDialog progressDialog;
@@ -86,12 +101,18 @@ public class MainActivity extends AppCompatActivity
     Location lastLocationl;
     HttpRequest request = null;
     MedirDistanciaDirecciones medirDistanciaDirecciones = MedirDistanciaDirecciones.getInstance();
-
+    private CacheData cacheData = CacheData.getInstance();
     private static final int REQUEST_LOCATION = 2;
     public static Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     Double lat, lon;
+    private static final int WRITE_EXTERNAL_STORAGE =4  ;
+    private static final int READ_PHONE_STATE = 3;
+    private SharedPreferences sharedPreferences;
+    boolean servicioIniciado = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         ///if (AccessToken.getCurrentAccessToken()== null){
         ///    goLoginScreem();
         ///}
-
+        context = this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -146,8 +167,96 @@ public class MainActivity extends AppCompatActivity
         tabHost.addTab(tabHost.newTabSpec("portada").setIndicator("Portada"), PortadaFragment.class, null);
         //tabHost.addTab(tabHost.newTabSpec("novedades").setIndicator("Novedades"), NovedadesFragment.class, null);
         tabHost.addTab(tabHost.newTabSpec("promociones").setIndicator("Promociones"), ClientePromocionesFragment.class, null);
+        //solicitarPermisosParaIniciarServicio();
+        solicitarPermisoReadStatePhone();
+        //solicitarPermisoStorage();
         buildGoogleApiClient();
+        final LocationManager manager = (LocationManager) getApplicationContext().getSystemService( Context.LOCATION_SERVICE );
+        if (!manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            buildAlertMessageNoGps();
+        }
     }
+
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void solicitarPermisoReadStatePhone(){
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_PHONE_STATE)) {
+                        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+                        alertBuilder.setCancelable(true);
+                        alertBuilder.setMessage("Write calendar permission is necessary to write event!!!");
+                        alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions((Activity)context, new String[]{Manifest.permission.READ_PHONE_STATE}, READ_PHONE_STATE);
+                            }
+                        });
+                    } else {
+                        ActivityCompat.requestPermissions((Activity)context, new String[]{Manifest.permission.READ_PHONE_STATE}, READ_PHONE_STATE);
+                    }
+                }else {
+                    TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                    String imei = telephonyManager.getDeviceId();
+                    //String imei = sharedPreferences.getString("imei","imei");
+                    cacheData.setImei(imei);
+                    solicitarPermisoStorage();
+                }
+    }
+
+    private void solicitarPermisoStorage(){
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+                alertBuilder.setCancelable(true);
+                alertBuilder.setMessage("Write calendar permission is necessary to write event!!!");
+                alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions((Activity)context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE);
+                    }
+                });
+            } else {
+                ActivityCompat.requestPermissions((Activity)context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE);
+            }
+        }else {
+            sharedPreferences = getSharedPreferences("INFOGUIA_SharedPrefFile", 0);
+            TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            String imei = telephonyManager.getDeviceId();
+            SharedPreferences.Editor editorImei = sharedPreferences.edit();
+            editorImei.putString("imei", imei);
+            editorImei.commit();
+            cacheData.setImei(imei);
+            if (cacheData.getImei() != null || !cacheData.getImei().equals("")) {
+                servicioIniciado = true;
+                Intent intent = new Intent(MainActivity.this, Subscriber.class);
+                startService(intent);
+                Log.i("Arranque", "Servicio Subscriber iniciado...");
+
+            }
+        }
+    }
+    /***
+     * @Mandatorio
+     * se deben de habilitar estos permimsos obligatoriamente
+     */
+
 
     private void goLoginScreem() {
         Intent i = new Intent(this, LoginActivity.class);
@@ -188,7 +297,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         EventBus.getDefault().unregister(this);
-        mGoogleApiClient.disconnect();
+       mGoogleApiClient.disconnect();
         super.onStop();
     }
 
@@ -208,7 +317,7 @@ public class MainActivity extends AppCompatActivity
         clientesDto.setCoordenadas( medirDistanciaDirecciones.getLatitud().toString()+ "|" + medirDistanciaDirecciones.getLongitud().toString());
         clientesDto.setNombre_corto(nombre);
         request.setData(clientesDto);
-        request.setType("/api/request/android/ClienteMain/ClienteService/getClientesPorNombre/"+ UUID.randomUUID().toString());
+        request.setType("/api/request/android/ClienteMain/ClienteService/getClientesPorNombre/"+ cacheData.getImei());
         EventBus.getDefault().post(new EventPublish(request));
     }
 
@@ -247,13 +356,13 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_perfil) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_lista_deseos) {
 
         } else if (id == R.id.nav_slideshow) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_ajustes) {
 
         } else if (id == R.id.nav_share) {
 
@@ -312,7 +421,8 @@ public class MainActivity extends AppCompatActivity
         if (mLastLocation != null) {
             lat = mLastLocation.getLatitude();
             lon = mLastLocation.getLongitude();
-
+            medirDistanciaDirecciones.setLatitud(lat);
+            medirDistanciaDirecciones.setLongitud(lon);
         }else {
             if (medirDistanciaDirecciones.getLongitud() == null || medirDistanciaDirecciones.getLatitud() == null){
                 UbicacionRequest request = new UbicacionRequest();
@@ -363,6 +473,40 @@ public class MainActivity extends AppCompatActivity
                     request.execute();
                 }
             }
+        }
+        if (requestCode == WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                sharedPreferences = getSharedPreferences("INFOGUIA_SharedPrefFile", 0);
+                TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                String imei = telephonyManager.getDeviceId();
+                SharedPreferences.Editor editorImei = sharedPreferences.edit();
+                editorImei.putString("imei", imei);
+                editorImei.commit();
+                cacheData.setImei(imei);
+                if (cacheData.getImei() != null || !cacheData.getImei().equals("")) {
+                    servicioIniciado = true;
+                    Intent intent = new Intent(MainActivity.this, Subscriber.class);
+                    startService(intent);
+                    Log.i("Arranque", "Servicio Subscriber iniciado...");
+
+                }
+            } else {
+                Toast.makeText(MainActivity.this, "Permiso denegado para leer estado", Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (requestCode == READ_PHONE_STATE) {
+                if (grantResults.length == 1
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+                    String imei = telephonyManager.getDeviceId();
+                    cacheData.setImei(imei);
+                    Toast.makeText(MainActivity.this, "Permiso condedido para leer estado del telefono", Toast.LENGTH_SHORT).show();
+                    solicitarPermisoStorage();
+                }else {
+                    Toast.makeText(MainActivity.this, "Permiso denegado para leer estado", Toast.LENGTH_SHORT).show();
+                }
+
         }
     }
 
