@@ -115,7 +115,6 @@ public class Subscriber extends Service implements MqttCallback {
         }
         MemoryPersistence dataStore = new MemoryPersistence();
         try {
-
             MqttConnectOptions options = new MqttConnectOptions();
             options.setUserName(getApplication().getString(R.string.user));
             options.setPassword(getApplication().getString(R.string.password).toCharArray());
@@ -126,7 +125,7 @@ public class Subscriber extends Service implements MqttCallback {
             Log.i("Client","Connected..."); //$NON-NLS-1$
 
             IMqttToken mqttToken = client.connect(options);
-            mqttToken.waitForCompletion(3000);
+            mqttToken.waitForCompletion(5000);
             if (mqttToken.isComplete())
             {
                 if (mqttToken.getException() != null)
@@ -243,11 +242,13 @@ public class Subscriber extends Service implements MqttCallback {
             String message = gson.toJson(request);
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setPayload(message.getBytes());
-            if (request.getType().contains("Cliente")){
-                client.publish(request.getType(), mqttMessage);
+            if (client !=null){
+                if (request.getType().contains("Cliente")){
+                    client.publish(request.getType(), mqttMessage);
+                }
             }
         }catch (Exception e){
-            e.printStackTrace();
+            Log.e("Subscriber", "Error "  +e.getMessage());
         }
 
     }

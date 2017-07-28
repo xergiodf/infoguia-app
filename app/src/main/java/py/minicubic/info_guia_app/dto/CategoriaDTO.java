@@ -8,6 +8,15 @@ public class CategoriaDTO {
 
     private Long id;
     private String descripcion;
+    private String categoria;
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
 
     public Long getId() {
         return id;

@@ -144,6 +144,7 @@ public class Publicador extends Service{
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setPayload(message.getBytes());
             if (request.getType().contains("Cliente")){
+                if (client !=null)
                 client.publish(request.getType(), mqttMessage);
             }
 

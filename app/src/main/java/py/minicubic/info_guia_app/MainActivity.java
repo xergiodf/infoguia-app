@@ -103,8 +103,8 @@ public class MainActivity extends AppCompatActivity
     MedirDistanciaDirecciones medirDistanciaDirecciones = MedirDistanciaDirecciones.getInstance();
     private CacheData cacheData = CacheData.getInstance();
     private static final int REQUEST_LOCATION = 2;
-    public static Location mLastLocation;
     private GoogleApiClient mGoogleApiClient;
+    public static Location mLastLocation;
     private LocationRequest mLocationRequest;
     Double lat, lon;
     private static final int WRITE_EXTERNAL_STORAGE =4  ;

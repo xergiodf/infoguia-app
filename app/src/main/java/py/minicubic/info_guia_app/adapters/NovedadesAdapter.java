@@ -66,7 +66,6 @@ public class NovedadesAdapter extends BaseAdapter {
                 .into(imageView);
         txtDescripcionNovedad.setText(novedades.getDescripcion_corta());
         txtTituloNovedad.setText(novedades.getTitulo());
-
         return view;
     }
 }

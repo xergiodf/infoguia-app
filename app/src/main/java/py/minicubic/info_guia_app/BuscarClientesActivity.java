@@ -70,7 +70,6 @@ public class BuscarClientesActivity extends AppCompatActivity {
                 return false;
             }
         });
-
         searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() {
@@ -82,7 +81,6 @@ public class BuscarClientesActivity extends AppCompatActivity {
                 //Do some magic
             }
         });
-
     }
 
     @Override
@@ -99,6 +97,7 @@ public class BuscarClientesActivity extends AppCompatActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
     private void buscarCliente(String nombre){
         Request<ClienteDTO> request = new Request<>();
         ClienteDTO clientesDto = new ClienteDTO();

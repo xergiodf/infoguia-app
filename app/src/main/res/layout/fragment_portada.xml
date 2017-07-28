@@ -3,197 +3,303 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/blanco"
     tools:context="py.minicubic.info_guia_app.PortadaFragment">
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="vertical"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             android:weightSum="1">
+
             <com.daimajia.slider.library.SliderLayout
                 android:id="@+id/slider"
                 android:layout_width="match_parent"
-                custom:pager_animation="Accordion"
+                android:layout_height="180dp"
                 custom:auto_cycle="true"
                 custom:indicator_visibility="visible"
-                custom:pager_animation_span="1100"
-                android:layout_height="180dp"/>
+                custom:pager_animation="Accordion"
+                custom:pager_animation_span="1100" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
+
                 <com.daimajia.slider.library.Indicators.PagerIndicator
                     android:id="@+id/custom_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="20dp"
                     android:gravity="center"
                     custom:selected_color="#0095BF"
-                    custom:unselected_color="#55333333"
-                    custom:shape="oval"
+                    custom:selected_height="6dp"
                     custom:selected_padding_left="5dp"
                     custom:selected_padding_right="5dp"
+                    custom:selected_width="6dp"
+                    custom:shape="oval"
+                    custom:unselected_color="#55333333"
+                    custom:unselected_height="6dp"
                     custom:unselected_padding_left="5dp"
                     custom:unselected_padding_right="5dp"
-                    android:layout_centerHorizontal="true"
-                    android:layout_alignParentBottom="true"
-                    custom:selected_width="6dp"
-                    custom:selected_height="6dp"
-                    custom:unselected_width="6dp"
-                    custom:unselected_height="6dp"
-                    android:layout_marginBottom="20dp"
-                    />
+                    custom:unselected_width="6dp" />
+
                 <com.daimajia.slider.library.Indicators.PagerIndicator
                     android:id="@+id/custom_indicator2"
                     style="@style/AndroidImageSlider_Corner_Oval_Orange"
-                    android:layout_centerHorizontal="true"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="20dp"
-                    />
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="20dp" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="95dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="73dp"
+                                android:layout_height="wrap_content">
+
+                                <com.nightonke.boommenu.BoomMenuButton
+                                    android:id="@+id/bmbInfo"
+                                    android:layout_gravity="left"
+                                    android:foregroundGravity="left"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    custom:bmb_buttonEnum="textInsideCircle"
+                                    custom:bmb_buttonPlaceEnum="buttonPlace_custom"
+                                    custom:bmb_dotRadius="0dp"
+                                    custom:bmb_piecePlaceEnum="piecePlace_custom">
+
+                                    <ImageView
+                                        android:id="@+id/btnMatematica"
+                                        android:layout_width="35dp"
+                                        android:layout_height="35dp"
+                                        android:layout_gravity="center"
+                                        android:src="@android:drawable/ic_dialog_info" />
+                                </com.nightonke.boommenu.BoomMenuButton>
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Informacion"
+                                android:layout_gravity="center"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <com.nightonke.boommenu.BoomMenuButton
+                                    android:id="@+id/bmbNegocios"
+                                    android:layout_width="73dp"
+                                    android:layout_height="wrap_content"
+                                    custom:bmb_buttonEnum="textInsideCircle"
+                                    custom:bmb_buttonPlaceEnum="buttonPlace_custom"
+                                    custom:bmb_dotRadius="0dp"
+                                    custom:bmb_normalColor="@color/granate"
+                                    custom:bmb_piecePlaceEnum="piecePlace_custom">
+
+                                    <ImageView
+                                        android:layout_width="35dp"
+                                        android:layout_height="35dp"
+                                        android:layout_gravity="center"
+
+                                        android:src="@drawable/ic_bolso" />
+                                </com.nightonke.boommenu.BoomMenuButton>
+                                <!--<Button
+                                android:id="@+id/btnNegociosPortada"
+                                android:layout_width="65dp"
+                                android:layout_height="65dp"
+                                android:layout_marginLeft="6dp"
+                                android:background="@drawable/circle_granate"
+                                android:drawableTop="@drawable/ic_bolso"
+                                android:paddingTop="10dp"
+                                android:textColor="#fff" />-->
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="Negocios"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <com.nightonke.boommenu.BoomMenuButton
+                                    android:id="@+id/bmbOcio"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    custom:bmb_buttonEnum="textInsideCircle"
+                                    custom:bmb_buttonPlaceEnum="buttonPlace_custom"
+                                    custom:bmb_dotRadius="0dp"
+                                    custom:bmb_normalColor="@color/verde"
+                                    custom:bmb_piecePlaceEnum="piecePlace_custom">
+
+                                    <ImageView
+                                        android:layout_width="35dp"
+                                        android:layout_height="35dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/soccer_ball" />
+                                </com.nightonke.boommenu.BoomMenuButton>
+                                <!--<Button
+                                android:id="@+id/btnOcioPortada"
+                                android:layout_width="65dp"
+                                android:layout_height="65dp"
+                                android:layout_marginLeft="6dp"
+                                android:background="@drawable/circle_yellow"
+                                android:drawableTop="@drawable/soccer_ball"
+                                android:fontFamily="sans-serif"
+                                android:paddingTop="13dp"
+                                android:textColor="#fff" />-->
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="Ocio"
+                                android:textSize="10sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <com.nightonke.boommenu.BoomMenuButton
+                                    android:id="@+id/bmbTurismo"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    custom:bmb_buttonEnum="textInsideCircle"
+                                    custom:bmb_buttonPlaceEnum="buttonPlace_custom"
+                                    custom:bmb_dotRadius="0dp"
+                                    custom:bmb_normalColor="@color/naranja"
+                                    custom:bmb_piecePlaceEnum="piecePlace_custom">
+
+                                    <ImageView
+                                        android:layout_width="35dp"
+                                        android:layout_height="35dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_avion" />
+                                </com.nightonke.boommenu.BoomMenuButton>
+                            </LinearLayout>
+                            <!--<Button
+                            android:id="@+id/btnTurimosPortada"
+                            android:layout_width="65dp"
+                            android:layout_height="65dp"
+                            android:layout_marginLeft="6dp"
+                            android:background="@drawable/circle_naranja"
+                            android:drawableTop="@drawable/ic_avion"
+                            android:paddingTop="4dp"
+                            android:textColor="#fff" />-->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="Turismo"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <com.nightonke.boommenu.BoomMenuButton
+                                    android:id="@+id/bmbServicios"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    custom:bmb_buttonEnum="textInsideCircle"
+                                    custom:bmb_buttonPlaceEnum="buttonPlace_custom"
+                                    custom:bmb_dotRadius="0dp"
+                                    custom:bmb_normalColor="@color/azulMedio"
+                                    custom:bmb_piecePlaceEnum="piecePlace_custom">
+
+                                    <ImageView
+                                        android:layout_width="35dp"
+                                        android:layout_height="35dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_servicio" />
+                                </com.nightonke.boommenu.BoomMenuButton>
+                                <!--<Button
+                                android:id="@+id/btnServiciosPortada"
+                                android:layout_width="65dp"
+                                android:layout_height="65dp"
+                                android:layout_marginLeft="6dp"
+                                android:background="@drawable/circle"
+                                android:drawableTop="@drawable/ic_servicio"
+                                android:paddingTop="6dp"
+                                android:textColor="#fff" />-->
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:text="Servicios"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <Button
-                            android:layout_width="65dp"
-                            android:id="@+id/btnInformacionPortada"
-                            android:layout_height="65dp"
-                            android:layout_marginLeft="6dp"
-                            android:background="@drawable/circle"
-                            android:drawableTop="@android:drawable/ic_dialog_info"
-                            android:paddingTop="17dp"
-                            android:textColor="#fff" />
-                    </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <Button
-                            android:id="@+id/btnNegociosPortada"
-                            android:layout_width="65dp"
-                            android:layout_height="65dp"
-                            android:layout_marginLeft="6dp"
-                            android:background="@drawable/circle_granate"
-                            android:drawableTop="@drawable/ic_bolso"
-                            android:fontFamily="sans-serif"
-                            android:paddingTop="10dp"
-                            android:textColor="#fff" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <Button
-                            android:layout_width="65dp"
-                            android:layout_height="65dp"
-                            android:layout_marginLeft="6dp"
-                            android:id="@+id/btnOcioPortada"
-                            android:paddingTop="13dp"
-                            android:background="@drawable/circle_yellow"
-                            android:drawableTop="@drawable/soccer_ball"
-                            android:textColor="#fff" />
-                    </LinearLayout>
-
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-                <Button
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:layout_marginLeft="6dp"
-                    android:id="@+id/btnTurimosPortada"
-                    android:background="@drawable/circle_naranja"
-                    android:drawableTop="@drawable/ic_avion"
-                    android:paddingTop="4dp"
-                    android:textColor="#fff" />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <Button
-                        android:id="@+id/btnServiciosPortada"
-                        android:layout_width="65dp"
-                        android:layout_height="65dp"
-                        android:layout_marginLeft="6dp"
-                        android:background="@drawable/circle"
-                        android:drawableTop="@drawable/ic_servicio"
-                        android:paddingTop="6dp"
-                        android:textColor="#fff" />
-                </LinearLayout>
-            </LinearLayout>
-             <LinearLayout
-                 android:layout_width="match_parent"
-                 android:layout_height="wrap_content">
-                 <TextView
-                     android:layout_width="75dp"
-                     android:layout_height="wrap_content"
-                     android:textSize="10sp"
-                     android:layout_gravity="center"
-                     android:gravity="center"
-                     android:text="Informaciones"/>
-
-                 <TextView
-                     android:id="@+id/textView3"
-                     android:layout_width="70dp"
-                     android:layout_gravity="center"
-                     android:gravity="center"
-                     android:layout_height="wrap_content"
-                     android:text="Negocios"
-                     android:textSize="10sp" />
-
-                 <TextView
-                     android:layout_width="70dp"
-                     android:layout_height="wrap_content"
-                     android:layout_gravity="center"
-                     android:gravity="center"
-                     android:text="Ocio"
-                     android:textAppearance="@style/NavDrawerTextStyle" />
-                 <TextView
-                     android:layout_width="75dp"
-                     android:layout_height="wrap_content"
-                     android:textSize="10sp"
-                     android:layout_gravity="center"
-                     android:gravity="center"
-                     android:text="Turismo"/>
-                 <TextView
-                     android:layout_width="70dp"
-                     android:layout_gravity="center"
-                     android:gravity="center"
-                     android:layout_height="wrap_content"
-                     android:textSize="10sp"
-                     android:text="Servicios"/>
-             </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_marginTop="5dp">
 
                 <TextView
                     android:id="@+id/textView2"
@@ -202,15 +308,18 @@
                     android:text="Marcas destacadas"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:weightSum="1">
+
                 <android.support.v7.widget.CardView
                     android:layout_width="160dp"
-                    android:layout_margin="10dp"
-                    android:layout_height="100dp">
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp">
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -226,14 +335,16 @@
                             android:id="@+id/imageViewOfertaItau"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="fitXY"
-                            android:adjustViewBounds="false" />
+                            android:adjustViewBounds="false"
+                            android:scaleType="fitXY" />
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
+
                 <android.support.v7.widget.CardView
                     android:layout_width="160dp"
-                    android:layout_margin="10dp"
-                    android:layout_height="100dp">
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -249,21 +360,24 @@
                             android:id="@+id/imageViewOfertasPromoItau"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="fitXY"
-                            android:adjustViewBounds="false" />
+                            android:adjustViewBounds="false"
+                            android:scaleType="fitXY" />
                     </LinearLayout>
 
                 </android.support.v7.widget.CardView>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:weightSum="1">
+
                 <android.support.v7.widget.CardView
                     android:layout_width="160dp"
-                    android:layout_margin="10dp"
-                    android:layout_height="100dp">
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -279,15 +393,17 @@
                             android:id="@+id/imageViewOfertasDominos"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="fitXY"
-                            android:adjustViewBounds="true" />
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitXY" />
                     </LinearLayout>
 
                 </android.support.v7.widget.CardView>
+
                 <android.support.v7.widget.CardView
                     android:layout_width="160dp"
-                    android:layout_margin="10dp"
-                    android:layout_height="100dp">
+                    android:layout_height="100dp"
+                    android:layout_margin="10dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -300,15 +416,16 @@
                             android:text="Burguer" />
 
                         <ImageView
+                            android:id="@+id/imageViewOfertasBurguer"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="fitXY"
                             android:adjustViewBounds="false"
-                            android:id="@+id/imageViewOfertasBurguer"/>
+                            android:scaleType="fitXY" />
                     </LinearLayout>
 
                 </android.support.v7.widget.CardView>
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

@@ -63,6 +63,13 @@ public class CategoriasActivity extends AppCompatActivity {
         progressDialog.setMessage("Cargando categorias...");
         progressDialog.setTitle("Infoguia");
         progressDialog.show();
+        h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkResponse();
+            }
+        }, 6000);
         listView = (ListView) findViewById(R.id.lvExp);
         String parametro = getIntent().getStringExtra("parametro");
         cargarCategorias(parametro);
@@ -85,7 +92,6 @@ public class CategoriasActivity extends AppCompatActivity {
             }
         });
         // get the listview
-
     }
 
     @Override

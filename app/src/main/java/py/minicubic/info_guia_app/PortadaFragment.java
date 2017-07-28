@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PointF;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,6 +39,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
+import com.nightonke.boommenu.BoomButtons.TextInsideCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.Util;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -47,11 +53,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import py.minicubic.info_guia_app.adapters.CategoriasAdapter;
 import py.minicubic.info_guia_app.adapters.TransformerAdapter;
+import py.minicubic.info_guia_app.dto.CategoriaDTO;
 import py.minicubic.info_guia_app.dto.ClienteDTO;
 import py.minicubic.info_guia_app.dto.PublicacionClienteDTO;
 import py.minicubic.info_guia_app.dto.Request;
@@ -59,6 +68,7 @@ import py.minicubic.info_guia_app.dto.Response;
 import py.minicubic.info_guia_app.event.BuscarClienteEvent;
 import py.minicubic.info_guia_app.event.CargarPublicacionPrincipalEvent;
 import py.minicubic.info_guia_app.event.CargarPublicacionSecundariaEvent;
+import py.minicubic.info_guia_app.event.CategoriaEvent;
 import py.minicubic.info_guia_app.event.EventPublish;
 import py.minicubic.info_guia_app.event.SubscriberAlready;
 import py.minicubic.info_guia_app.rest.HttpRequest;
@@ -82,6 +92,19 @@ public class PortadaFragment extends Fragment implements
                     imageViewOfertaBurguer, imageViewOfertaBolson, imageViewOfertaZapato, imageViewFavoritoMochila, imageViewRecomendadoTenis, imageViewRecomendadoHeineken;
     TextView txtMarcaDestacada1, txtMarcaDestacada2, txtMarcaDestacada3,txtMarcaDestacada4;
     private CacheData cacheData = CacheData.getInstance();
+    private List<CategoriaDTO> listaCategoriasInformacion = new ArrayList<>();
+    private List<CategoriaDTO> listaCategoriasNegocios = new ArrayList<>();
+    private List<CategoriaDTO> listaCategoriasOcio = new ArrayList<>();
+    private List<CategoriaDTO> listaCategoriasTurismo = new ArrayList<>();
+    private List<CategoriaDTO> listaCategoriasServicios = new ArrayList<>();
+
+     BoomMenuButton boomMenuButtonInfo;
+    BoomMenuButton boomMenuButtonServicios;
+    BoomMenuButton boomMenuButtonNegocios;
+    BoomMenuButton boomMenuButtonOcio;
+    BoomMenuButton boomMenuButtonTurismo;
+
+
     public PortadaFragment() {
         // Required empty public constructor
     }
@@ -166,55 +189,284 @@ public class PortadaFragment extends Fragment implements
 
         cargarPublicaciones();
         cargarPublicacionesSecundarias();
-        btnInformacionesPortada = (Button) view.findViewById(R.id.btnInformacionPortada);
-        btnNegociosPortada = (Button) view.findViewById(R.id.btnNegociosPortada);
-        btnOcioPortada = (Button) view.findViewById(R.id.btnOcioPortada);
-        btnTurismoPortada = (Button) view.findViewById(R.id.btnTurimosPortada);
-        btnServiciosPortada = (Button) view.findViewById(R.id.btnServiciosPortada);
-        btnInformacionesPortada.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("parametro", "informaciones");
-                getActivity().startActivity(i);
-            }
-        });
-        btnNegociosPortada.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("parametro","negocios");
-                getActivity().startActivity(i);
-            }
-        });
-        btnOcioPortada.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("parametro","ocio");
-                getActivity().startActivity(i);
-            }
-        });
-        btnTurismoPortada.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("parametro","turismo");
-                getActivity().startActivity(i);
-            }
-        });
-        btnServiciosPortada.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), CategoriasActivity.class);
-                i.putExtra("parametro","servicios");
-                getActivity().startActivity(i);
-            }
-        });
+        boomMenuButtonInfo = (BoomMenuButton) view.findViewById(R.id.bmbInfo);
+        boomMenuButtonServicios = (BoomMenuButton) view.findViewById(R.id.bmbServicios);
+        boomMenuButtonOcio = (BoomMenuButton) view.findViewById(R.id.bmbOcio);
+        boomMenuButtonNegocios = (BoomMenuButton) view.findViewById(R.id.bmbNegocios);
+        boomMenuButtonTurismo = (BoomMenuButton) view.findViewById(R.id.bmbTurismo);
+        boomMenuButtonInfo.setInFragment(true);
+        boomMenuButtonNegocios.setInFragment(true);
+        boomMenuButtonServicios.setInFragment(true);
+        boomMenuButtonOcio.setInFragment(true);
+        boomMenuButtonTurismo.setInFragment(true);
 
         return view;
     }
 
+
+    private void cargarCategorias(String parametro){
+        Request<CategoriaDTO> request = new Request<>();
+        CategoriaDTO categoriaDTO = new CategoriaDTO();
+        categoriaDTO.setDescripcion(parametro);
+        request.setData(categoriaDTO);
+        request.setType("/api/request/android/Categoria/ClienteService/getCategoria/"+ cacheData.getImei());
+        EventBus.getDefault().post(new EventPublish(request));
+    }
+
+    @Subscribe(threadMode=ThreadMode.MAIN)
+    public void onCategoriaEvent(CategoriaEvent event){
+        int distancia = 90;
+        int fila1 = -120;
+        int fila2 = -120;
+        int fila3 = -120;
+        int fila4 = -120;
+        int primeraLinea = -120;
+        Type listType = new TypeToken<Response<List<CategoriaDTO>>>(){}.getType();
+        Response<List<CategoriaDTO>> response = gson.fromJson(event.getMessage(), listType);
+        if (response.getCodigo() == 200){
+            if (response.getData().get(0).getCategoria().equalsIgnoreCase("servicios")){
+                listaCategoriasServicios = response.getData();
+                for (int i = 0; i < listaCategoriasServicios.size(); i++) {
+                    if (i<4){
+                        if (i != 0)
+                            fila1 += distancia;
+                        boomMenuButtonServicios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonServicios.getCustomButtonPlacePositions().add(new PointF((i == 0 ? Util.dp2px(-120) : Util.dp2px(fila1) ), Util.dp2px(-180)));
+                    }
+                    if ((i>=4 && i <=7)){
+                        if (i != 4)
+                            fila2 +=  distancia;
+                        boomMenuButtonServicios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonServicios.getCustomButtonPlacePositions().add(new PointF((i == 4 ? Util.dp2px(-120) : Util.dp2px(fila2) ), Util.dp2px(-90)));
+                    }
+
+                    if ((i>=8 && i <=11)){
+                        if (i != 8)
+                            fila3 += distancia;
+                        boomMenuButtonServicios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonServicios.getCustomButtonPlacePositions().add(new PointF((i == 8 ? Util.dp2px(-120) : Util.dp2px(fila3) ), Util.dp2px(0)));
+                    }
+
+                    if ((i>=12 && i <=15)){
+                        if (i != 12)
+                            fila4 += distancia;
+                        boomMenuButtonServicios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonServicios.getCustomButtonPlacePositions().add(new PointF((i == 12 ? Util.dp2px(-120) : Util.dp2px(fila4) ), Util.dp2px(90)));
+                    }
+
+                    TextInsideCircleButton.Builder builder = new TextInsideCircleButton.Builder()
+                            .normalImageRes(R.drawable.ic_action_perm_identity)
+                            .normalText(listaCategoriasServicios.get(i).getDescripcion())
+                            .listener(new OnBMClickListener() {
+                                @Override
+                                public void onBoomButtonClick(int index) {
+                                    CategoriaDTO categoriaDTO = (CategoriaDTO) listaCategoriasServicios.get(index);
+                                    Intent i = new Intent(getActivity(), ListaClientesActivity.class);
+                                    i.putExtra("parametro", categoriaDTO.getDescripcion());
+                                    startActivity(i);
+                                }
+                            });
+                    boomMenuButtonServicios.addBuilder(builder);
+                }
+            }else if (response.getData().get(0).getCategoria().contains("Turismo")){
+                listaCategoriasTurismo = response.getData();
+                for (int i = 0; i < listaCategoriasTurismo.size(); i++) {
+                    if (i<4){
+                        if (i != 0)
+                            fila1 += distancia;
+                        boomMenuButtonTurismo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonTurismo.getCustomButtonPlacePositions().add(new PointF((i == 0 ? Util.dp2px(-120) : Util.dp2px(fila1) ), Util.dp2px(-180)));
+
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 0 ? Util.dp2px(-120) : Util.dp2px(fila1) ), Util.dp2px(-180)));
+                    }
+                    if ((i>=4 && i <=7)){
+                        if (i != 4)
+                            fila2 +=  distancia;
+                        boomMenuButtonTurismo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonTurismo.getCustomButtonPlacePositions().add(new PointF((i == 4 ? Util.dp2px(-120) : Util.dp2px(fila2) ), Util.dp2px(-90)));
+
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 4 ? Util.dp2px(-120) : Util.dp2px(fila2) ), Util.dp2px(-90)));
+                    }
+
+                    if ((i>=8 && i <=11)){
+                        if (i != 8)
+                            fila3 += distancia;
+                        boomMenuButtonTurismo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonTurismo.getCustomButtonPlacePositions().add(new PointF((i == 8 ? Util.dp2px(-120) : Util.dp2px(fila3) ), Util.dp2px(0)));
+
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 8 ? Util.dp2px(-120) : Util.dp2px(fila3) ), Util.dp2px(0)));
+                    }
+
+                    if ((i>=12 && i <=15)){
+                        if (i != 12)
+                            fila4 += distancia;
+                        boomMenuButtonTurismo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonTurismo.getCustomButtonPlacePositions().add(new PointF((i == 12 ? Util.dp2px(-120) : Util.dp2px(fila4) ), Util.dp2px(90)));
+
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 12 ? Util.dp2px(-120) : Util.dp2px(fila4) ), Util.dp2px(90)));
+                    }
+
+                    TextInsideCircleButton.Builder builder = new TextInsideCircleButton.Builder()
+                            .normalImageRes(R.drawable.ic_action_perm_identity)
+                            .normalText(listaCategoriasTurismo.get(i).getDescripcion())
+                            .listener(new OnBMClickListener() {
+                                @Override
+                                public void onBoomButtonClick(int index) {
+                                    CategoriaDTO categoriaDTO = (CategoriaDTO) listaCategoriasTurismo.get(index);
+                                    Intent i = new Intent(getActivity(), ListaClientesActivity.class);
+                                    i.putExtra("parametro", categoriaDTO.getDescripcion());
+                                    startActivity(i);
+                                }
+                            });
+                    boomMenuButtonTurismo.addBuilder(builder);
+                    boomMenuButtonOcio.addBuilder(builder);
+                }
+            }else if (response.getData().get(0).getCategoria().contains("Ocio")){
+                listaCategoriasOcio = response.getData();
+                for (int i = 0; i < listaCategoriasOcio.size(); i++) {
+                    if (i<4){
+                        if (i != 0)
+                            fila1 += distancia;
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 0 ? Util.dp2px(-120) : Util.dp2px(fila1) ), Util.dp2px(-180)));
+                    }
+                    if ((i>=4 && i <=7)){
+                        if (i != 4)
+                            fila2 +=  distancia;
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 4 ? Util.dp2px(-120) : Util.dp2px(fila2) ), Util.dp2px(-90)));
+                    }
+
+                    if ((i>=8 && i <=11)){
+                        if (i != 8)
+                            fila3 += distancia;
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 8 ? Util.dp2px(-120) : Util.dp2px(fila3) ), Util.dp2px(0)));
+                    }
+
+                    if ((i>=12 && i <=15)){
+                        if (i != 12)
+                            fila4 += distancia;
+                        boomMenuButtonOcio.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonOcio.getCustomButtonPlacePositions().add(new PointF((i == 12 ? Util.dp2px(-120) : Util.dp2px(fila4) ), Util.dp2px(90)));
+                    }
+
+                    TextInsideCircleButton.Builder builder = new TextInsideCircleButton.Builder()
+                            .normalImageRes(R.drawable.ic_action_perm_identity)
+                            .normalText(listaCategoriasOcio.get(i).getDescripcion())
+                            .listener(new OnBMClickListener() {
+                                @Override
+                                public void onBoomButtonClick(int index) {
+                                    CategoriaDTO categoriaDTO = (CategoriaDTO) listaCategoriasOcio.get(index);
+                                    Intent i = new Intent(getActivity(), ListaClientesActivity.class);
+                                    i.putExtra("parametro", categoriaDTO.getDescripcion());
+                                    startActivity(i);
+                                }
+                            });
+                    boomMenuButtonOcio.addBuilder(builder);
+                }
+            }else if (response.getData().get(0).getCategoria().equalsIgnoreCase("negocios")){
+                listaCategoriasNegocios = response.getData();
+                for (int i = 0; i < listaCategoriasNegocios.size(); i++) {
+                    if (i<4){
+                        if (i != 0)
+                            fila1 += distancia;
+                        boomMenuButtonNegocios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonNegocios.getCustomButtonPlacePositions().add(new PointF((i == 0 ? Util.dp2px(-120) : Util.dp2px(fila1) ), Util.dp2px(-180)));
+                    }
+                    if ((i>=4 && i <=7)){
+                        if (i != 4)
+                            fila2 +=  distancia;
+                        boomMenuButtonNegocios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonNegocios.getCustomButtonPlacePositions().add(new PointF((i == 4 ? Util.dp2px(-120) : Util.dp2px(fila2) ), Util.dp2px(-90)));
+                    }
+
+                    if ((i>=8 && i <=11)){
+                        if (i != 8)
+                            fila3 += distancia;
+                        boomMenuButtonNegocios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonNegocios.getCustomButtonPlacePositions().add(new PointF((i == 8 ? Util.dp2px(-120) : Util.dp2px(fila3) ), Util.dp2px(0)));
+                    }
+
+                    if ((i>=12 && i <=15)){
+                        if (i != 12)
+                            fila4 += distancia;
+                        boomMenuButtonNegocios.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                        boomMenuButtonNegocios.getCustomButtonPlacePositions().add(new PointF((i == 12 ? Util.dp2px(-120) : Util.dp2px(fila4) ), Util.dp2px(90)));
+                    }
+
+                    TextInsideCircleButton.Builder builder = new TextInsideCircleButton.Builder()
+                            .normalImageRes(R.drawable.ic_action_perm_identity)
+                            .normalText(listaCategoriasNegocios.get(i).getDescripcion())
+                            .listener(new OnBMClickListener() {
+                                @Override
+                                public void onBoomButtonClick(int index) {
+                                    CategoriaDTO categoriaDTO = (CategoriaDTO) listaCategoriasNegocios.get(index);
+                                    Intent i = new Intent(getActivity(), ListaClientesActivity.class);
+                                    i.putExtra("parametro", categoriaDTO.getDescripcion());
+                                    startActivity(i);
+                                }
+                            });
+                    boomMenuButtonNegocios.addBuilder(builder);
+                }
+            }else if (response.getData().get(0).getCategoria().equalsIgnoreCase("informaciones")){
+                listaCategoriasInformacion = response.getData();
+                if (!listaCategoriasInformacion.isEmpty()){
+                    for (int i = 0; i < listaCategoriasInformacion.size(); i++) {
+                        if (i<4){
+                            if (i != 0)
+                                fila1 += distancia;
+                            boomMenuButtonInfo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                            boomMenuButtonInfo.getCustomButtonPlacePositions().add(new PointF((i == 0 ? Util.dp2px(-120) : Util.dp2px(fila1) ), Util.dp2px(-180)));
+                        }
+                        if ((i>=4 && i <=7)){
+                            if (i != 4)
+                            fila2 +=  distancia;
+                            boomMenuButtonInfo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                            boomMenuButtonInfo.getCustomButtonPlacePositions().add(new PointF((i == 4 ? Util.dp2px(-120) : Util.dp2px(fila2) ), Util.dp2px(-90)));
+                        }
+
+                        if ((i>=8 && i <=11)){
+                            if (i != 8)
+                                fila3 += distancia;
+                            boomMenuButtonInfo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                            boomMenuButtonInfo.getCustomButtonPlacePositions().add(new PointF((i == 8 ? Util.dp2px(-120) : Util.dp2px(fila3) ), Util.dp2px(0)));
+                        }
+
+                        if ((i>=12 && i <=15)){
+                            if (i != 12)
+                                fila4 += distancia;
+                            boomMenuButtonInfo.getCustomPiecePlacePositions().add(new PointF(Util.dp2px(+12), Util.dp2px(-12)));
+                            boomMenuButtonInfo.getCustomButtonPlacePositions().add(new PointF((i == 12 ? Util.dp2px(-120) : Util.dp2px(fila4) ), Util.dp2px(90)));
+                        }
+
+                        TextInsideCircleButton.Builder builder = new TextInsideCircleButton.Builder()
+                                .normalImageRes(R.drawable.ic_action_perm_identity)
+                                .normalText(listaCategoriasInformacion.get(i).getDescripcion())
+                                .listener(new OnBMClickListener() {
+                                    @Override
+                                    public void onBoomButtonClick(int index) {
+                                        CategoriaDTO categoriaDTO = (CategoriaDTO) listaCategoriasInformacion.get(index);
+                                        Intent i = new Intent(getActivity(), ListaClientesActivity.class);
+                                        i.putExtra("parametro", categoriaDTO.getDescripcion());
+                                        startActivity(i);
+                                    }
+                                });
+                        boomMenuButtonInfo.addBuilder(builder);
+                    }
+                }
+            }
+        }else {
+            progressDialog.dismiss();
+            Toast.makeText(getActivity(), "Error al traer Categorias", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+    }
     private void cargarPublicaciones(){
         Request<PublicacionClienteDTO> request = new Request<>();
         PublicacionClienteDTO publicacionClienteDTO = new PublicacionClienteDTO();
@@ -245,6 +497,11 @@ public class PortadaFragment extends Fragment implements
     public void onSubscrbierAlready(SubscriberAlready subscriberAlready){
         cargarPublicaciones();
         cargarPublicacionesSecundarias();
+        cargarCategorias("informaciones");
+        cargarCategorias("negocios");
+        cargarCategorias("ocio");
+        cargarCategorias("turismo");
+        cargarCategorias("servicios");
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

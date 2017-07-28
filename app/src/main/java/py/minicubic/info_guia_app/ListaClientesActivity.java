@@ -100,9 +100,14 @@ public class ListaClientesActivity extends AppCompatActivity {
             recyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
             recyclerView.setItemAnimator(new DefaultItemAnimator());
             recyclerView.setAdapter(adapter);
-            progressDialog.dismiss();
         }
-
+        h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkResponse();
+            }
+        }, 6000);
     }
 
     private void cargarLista(String parametro){
@@ -153,6 +158,12 @@ public class ListaClientesActivity extends AppCompatActivity {
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
+    }
+    private void checkResponse() {
+        if (!checkResponse){
+            progressDialog.dismiss();
+            Toast.makeText(this, "No se pudo traer las clientes", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
